@@ -26,3 +26,18 @@ export type Recipe = {
   note: string | null
   ingredients: RecipeIngredient[]
 }
+
+export type PlannedMeal = {
+  id: string
+  recipe_id: string
+  servings: number
+  cooked_at: string | null
+}
+
+export type ShoppingRow = {
+  id: string
+  item_id: string
+  quantity: number | null
+  is_manual: boolean
+  checked: boolean
+}

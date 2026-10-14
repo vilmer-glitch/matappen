@@ -20,7 +20,7 @@ React, Vite, TypeScript, Tailwind CSS and Supabase (database + email/password lo
 1. Install [Node.js](https://nodejs.org) (version 20 or newer).
 2. Create a project at [supabase.com](https://supabase.com).
 3. Copy `.env.example` to `.env.local` and fill in the Supabase URL and publishable key (Project Settings → API).
-4. In Supabase, open the SQL Editor and run the files in `supabase/migrations` in order (001–005).
+4. In Supabase, open the SQL Editor and run the files in `supabase/migrations` in order (001–006).
 5. Install and start:
    ```bash
    npm install

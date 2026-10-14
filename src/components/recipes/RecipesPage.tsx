@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useItems } from '../../hooks/useItems'
 import { useRecipes, type RecipeDraft } from '../../hooks/useRecipes'
-import { statusFor, unitLabel } from '../../lib/constants'
-import { convert, formatAmount, recipeUnitLabel } from '../../lib/recipeUnits'
-import { checkRecipe, type Availability } from '../../lib/availability'
+import { usePlannedMeals } from '../../hooks/usePlannedMeals'
+import { statusFor } from '../../lib/constants'
+import { planCooking } from '../../lib/cook'
+import { checkRecipe, portionsText, type Availability } from '../../lib/availability'
 import type { Recipe } from '../../types'
 import type { NewItem } from '../pantry/AddItemSearch'
 import { RecipeForm } from './RecipeForm'
@@ -17,6 +18,7 @@ type Props = {
 
 export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
   const items = useItems()
+  const planned = usePlannedMeals()
   const { recipes, loading, error, clearError, saveRecipe, removeRecipe, restoreRecipe } = useRecipes()
   const [mode, setMode] = useState<'view' | 'edit' | 'new'>('view')
   const [search, setSearch] = useState('')
@@ -65,55 +67,20 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
     })
   }
 
-  // Subtracts the ingredients for the cooked servings from the pantry. Staples are never subtracted.
-  // Also builds a report so it's clear what happened with each ingredient.
+  // Subtracts the ingredients for the cooked servings from the pantry, and marks the dish
+  // as cooked in Veckans rätter if it was planned. Shows a report of what happened.
   function cooked(recipe: Recipe, servings: number) {
-    const scale = servings / recipe.servings
-    const before: { id: string; quantity: number }[] = []
-    const lines: CookReport['lines'] = []
-
-    for (const ing of recipe.ingredients) {
-      const item = itemsById.get(ing.item_id)
-      if (!item) continue
-      const name = item.name
-      if (item.is_staple) {
-        lines.push({ name, text: 'basvara, dras inte av', ok: true })
-        continue
-      }
-      if (ing.quantity === null || !ing.unit) {
-        lines.push({ name, text: 'ingen mängd i receptet – fyll i den under Redigera', ok: false })
-        continue
-      }
-      if (item.quantity === null || !item.unit) {
-        lines.push({ name, text: 'ingen mängd i lagret – fyll i den under Översikt', ok: false })
-        continue
-      }
-      if (item.quantity === 0) {
-        lines.push({ name, text: 'var redan slut i lagret (0)', ok: false })
-        continue
-      }
-      const used = convert(ing.quantity * scale, ing.unit, item.unit)
-      if (used === null) {
-        lines.push({
-          name,
-          text: `kan inte räkna om ${recipeUnitLabel(ing.unit)} till ${unitLabel(item.unit)}`,
-          ok: false,
-        })
-        continue
-      }
-      const left = Math.max(0, Math.round((item.quantity - used) * 100) / 100)
-      const unit = unitLabel(item.unit)
-      lines.push({ name, text: `${formatAmount(item.quantity)} ${unit} → ${formatAmount(left)} ${unit}`, ok: true })
-      before.push({ id: item.id, quantity: item.quantity })
-      items.updateItem(item.id, { quantity: left, status: statusFor(left) })
-    }
+    const { updates, lines } = planCooking(recipe, servings, itemsById)
+    for (const { item, left } of updates) items.updateItem(item.id, { quantity: left, status: statusFor(left) })
+    const meal = planned.meals.find((m) => m.recipe_id === recipe.id && !m.cooked_at)
+    if (meal) planned.updateMeal(meal.id, { cooked_at: new Date().toISOString() })
 
     setReport({ recipeId: recipe.id, servings, lines })
-    if (before.length === 0) return
+    if (updates.length === 0 && !meal) return
 
-    const portions = `${servings} ${servings === 1 ? 'portion' : 'portioner'}`
-    showUndo(`${recipe.name}, ${portions}: ${before.length} varor drogs av`, () => {
-      for (const { id, quantity } of before) items.updateItem(id, { quantity, status: statusFor(quantity) })
+    showUndo(`${recipe.name}, ${portionsText(servings)}: ${updates.length} varor drogs av`, () => {
+      for (const { item } of updates) items.updateItem(item.id, { quantity: item.quantity, status: item.status })
+      if (meal) planned.updateMeal(meal.id, { cooked_at: null })
       setReport(null)
     })
   }

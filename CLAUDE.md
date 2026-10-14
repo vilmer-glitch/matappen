@@ -38,7 +38,6 @@ En webbapp som håller koll på matvarorna hemma, visar vad jag kan laga och skr
   - Varje vara har en låst enhet som väljs när den läggs till: g, ml, dl, l eller st (kyckling i g, grädde i dl, mjölk i l, rödlök i st).
   - Basvaror har ingen mängd.
   - Från början finns bara basvarorna i lagret.
-  - Att lösa i steg 5: "lite kvar"-förslag på inköpslistan behöver ett nytt sätt nu när statusknapparna är borta (t.ex. en gräns per vara).
 - **Basvaror:** varor som alltid antas finnas, till exempel salt, olja och kryddor. Markeras med en bock och dras aldrig av.
 - **Rätter:** namn och ingredienser, plus valfri länk och anteckning.
   - Egen flik "Recept": lista till vänster, vald rätt till höger. − / + vid portionerna skalar mängderna på skärmen.
@@ -48,7 +47,9 @@ En webbapp som håller koll på matvarorna hemma, visar vad jag kan laga och skr
 - **Vad kan jag laga?:** visar rätter jag kan laga nu och rätter där bara 1–2 varor saknas.
   - "Kan lagas" betyder minst 1 portion. Appen visar hur många portioner det jag har hemma räcker till.
 - **Veckans rätter:** jag väljer rätter med ett klick. Allt som saknas för dem hamnar automatiskt på inköpslistan, en gång per vara även om flera rätter behöver den.
-- **Inköpslista:** automatiska och egna varor. Varor med status "lite kvar" visas som förslag på listan. Knappen "Klar med handlingen" flyttar avbockade varor till lagret med status finns.
+  - Lagade rätter blir grå och överstrukna längst ner. "Rensa lagade" tar bort dem.
+- **Inköpslista:** automatiska och egna varor. Varor som är slut (mängd 0) visas som förslag. Knappen "Klar med handlingen" lägger avbockade varor i lagret.
+  - Listan föreslår mängden som fattas (t.ex. 300 g). Jag kan ändra den till det jag faktiskt köpte (t.ex. 500 g) innan jag bockar av.
 - **Jag lagade den här:** jag väljer hur många portioner jag lagade, och appen drar av ingredienserna för just så många portioner från lagret (4 portioner köttfärssås = hela receptet, 2 portioner = halva). Basvaror dras aldrig av. Räcker inte lagret blir mängden 0. Ångra-knappen återställer allt. Rätten markeras som lagad om den var planerad.
 
 ## Datamodell (förslag)

@@ -8,10 +8,13 @@ type Props = {
   items: Item[]
   loading: boolean
   openRecipe: (id: string) => void
+  // Recipes already in Veckans rätter, and how to add one
+  plannedIds: Set<string>
+  onPlan: (recipeId: string) => void
 }
 
 // "Vad kan jag laga?": recipes that can be cooked now, and those missing only 1–2 items
-export function CanCook({ recipes, items, loading, openRecipe }: Props) {
+export function CanCook({ recipes, items, loading, openRecipe, plannedIds, onPlan }: Props) {
   if (loading) return <p className="text-sm text-stone-400">Hämtar recept…</p>
   if (recipes.length === 0) return <p className="text-sm text-stone-400">Lägg till rätter under Recept först.</p>
 
@@ -31,10 +34,10 @@ export function CanCook({ recipes, items, loading, openRecipe }: Props) {
         ) : (
           <ul>
             {ready.map(({ recipe, maxServings }) => (
-              <li key={recipe.id}>
+              <li key={recipe.id} className="flex items-center gap-1">
                 <button
                   onClick={() => openRecipe(recipe.id)}
-                  className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-stone-100"
+                  className="flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-stone-100"
                 >
                   <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
                   <span className="flex-1 text-stone-800">{recipe.name}</span>
@@ -44,6 +47,7 @@ export function CanCook({ recipes, items, loading, openRecipe }: Props) {
                     </span>
                   )}
                 </button>
+                <PlanButton planned={plannedIds.has(recipe.id)} onPlan={() => onPlan(recipe.id)} />
               </li>
             ))}
           </ul>
@@ -57,10 +61,10 @@ export function CanCook({ recipes, items, loading, openRecipe }: Props) {
         ) : (
           <ul>
             {almost.map(({ recipe, missing }) => (
-              <li key={recipe.id}>
+              <li key={recipe.id} className="flex items-start gap-1">
                 <button
                   onClick={() => openRecipe(recipe.id)}
-                  className="flex w-full items-start gap-2 rounded-md px-2 py-1.5 text-left hover:bg-stone-100"
+                  className="flex min-w-0 flex-1 items-start gap-2 rounded-md px-2 py-1.5 text-left hover:bg-stone-100"
                 >
                   <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-amber-500" />
                   <span>
@@ -68,6 +72,7 @@ export function CanCook({ recipes, items, loading, openRecipe }: Props) {
                     <span className="block text-xs text-stone-500">Saknar {missing.map(describeMissing).join(', ')}</span>
                   </span>
                 </button>
+                <PlanButton planned={plannedIds.has(recipe.id)} onPlan={() => onPlan(recipe.id)} />
               </li>
             ))}
           </ul>
@@ -81,4 +86,18 @@ export function CanCook({ recipes, items, loading, openRecipe }: Props) {
 export function describeMissing({ item, short }: Missing) {
   const name = item?.name.toLowerCase() ?? 'okänd vara'
   return short !== null && item?.unit ? `${name} (${formatAmount(short)} ${unitLabel(item.unit)})` : name
+}
+
+// One click adds the recipe to Veckans rätter
+function PlanButton({ planned, onPlan }: { planned: boolean; onPlan: () => void }) {
+  if (planned) return <span className="px-2 py-1.5 text-xs text-stone-400">Vald</span>
+  return (
+    <button
+      onClick={onPlan}
+      title="Lägg till i veckans rätter"
+      className="rounded-md px-2 py-1 text-sm font-medium text-emerald-700 hover:bg-emerald-50"
+    >
+      +
+    </button>
+  )
 }
