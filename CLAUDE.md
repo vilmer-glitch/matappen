@@ -64,8 +64,8 @@ En webbapp som håller koll på matvarorna hemma, visar vad jag kan laga och skr
 - [x] 2. Lager med status och basvaror
 - [x] 3. Rätter med ingredienser
 - [x] 4. Vad kan jag laga?
-- [ ] 5. Veckans rätter, automatisk inköpslista och "Klar med handlingen"
-- [ ] 6. Jag lagade den här
+- [x] 5. Veckans rätter, automatisk inköpslista och "Klar med handlingen"
+- [x] 6. Jag lagade den här
 - [ ] 7. Gör appen installerbar (manifest och ikon), lägg upp den på GitHub och publicera på Vercel
 
 ## Senare, inte i version 1
