@@ -1,9 +1,12 @@
 import type { Session } from '@supabase/supabase-js'
 import { supabase } from '../lib/supabase'
-
-const columns = ['Lager', 'Veckans rätter', 'Inköpslista']
+import { useUndo } from '../hooks/useUndo'
+import { Pantry } from './pantry/Pantry'
+import { UndoBar } from './UndoBar'
 
 export function Overview({ session }: { session: Session }) {
+  const { toast, showUndo, dismiss } = useUndo()
+
   return (
     <div className="min-h-screen bg-stone-100">
       <header className="flex items-center justify-between bg-white px-6 py-3 shadow-sm">
@@ -19,14 +22,28 @@ export function Overview({ session }: { session: Session }) {
         </div>
       </header>
 
-      <main className="grid grid-cols-1 gap-4 p-6 md:grid-cols-3">
-        {columns.map((title) => (
-          <section key={title} className="min-h-96 rounded-xl bg-white p-4 shadow">
-            <h2 className="mb-2 text-lg font-semibold text-stone-800">{title}</h2>
-            <p className="text-sm text-stone-400">Kommer snart.</p>
-          </section>
-        ))}
+      <main className="grid grid-cols-1 gap-4 p-6 lg:grid-cols-3">
+        <Column title="Lager">
+          <Pantry showUndo={showUndo} />
+        </Column>
+        <Column title="Veckans rätter">
+          <p className="text-sm text-stone-400">Kommer snart.</p>
+        </Column>
+        <Column title="Inköpslista">
+          <p className="text-sm text-stone-400">Kommer snart.</p>
+        </Column>
       </main>
+
+      <UndoBar toast={toast} onDismiss={dismiss} />
     </div>
+  )
+}
+
+function Column({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="min-h-96 rounded-xl bg-white p-4 shadow">
+      <h2 className="mb-3 text-lg font-semibold text-stone-800">{title}</h2>
+      {children}
+    </section>
   )
 }

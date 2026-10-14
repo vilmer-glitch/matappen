@@ -33,7 +33,12 @@ En webbapp som håller koll på matvarorna hemma, visar vad jag kan laga och skr
 - Byggd för datorskärm först, men så att den kan anpassas till mobil senare.
 
 ## Funktioner i version 1
-- **Lager:** alla varor hemma, grupperade per kategori. Varje vara har status finns / lite kvar / slut, som ändras med ett klick.
+- **Lager:** alla varor hemma i tre grupper: Kyl (kyl och frys), Skafferi (torra varor, t.ex. pasta) och Basvaror.
+  - Varor i Kyl och Skafferi har bara mängd, inga statusknappar. Mängd 0 = slut.
+  - Varje vara har en låst enhet som väljs när den läggs till: g, ml, l eller st (kyckling i g, mjölk i l, rödlök i st).
+  - Basvaror har ingen mängd.
+  - Från början finns bara basvarorna i lagret.
+  - Att lösa i steg 5: "lite kvar"-förslag på inköpslistan behöver ett nytt sätt nu när statusknapparna är borta (t.ex. en gräns per vara).
 - **Basvaror:** varor som alltid antas finnas, till exempel salt, olja och kryddor. Markeras med en bock och dras aldrig av.
 - **Rätter:** namn och ingredienser, plus valfri länk och anteckning.
 - **Vad kan jag laga?:** visar rätter jag kan laga nu och rätter där bara 1–2 varor saknas.
@@ -50,7 +55,7 @@ En webbapp som håller koll på matvarorna hemma, visar vad jag kan laga och skr
 
 ## Byggordning
 - [x] 1. Projektgrund, Supabase-koppling och inloggning
-- [ ] 2. Lager med status och basvaror
+- [x] 2. Lager med status och basvaror
 - [ ] 3. Rätter med ingredienser
 - [ ] 4. Vad kan jag laga?
 - [ ] 5. Veckans rätter, automatisk inköpslista och "Klar med handlingen"
