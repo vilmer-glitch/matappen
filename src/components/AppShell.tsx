@@ -12,7 +12,7 @@ const tabs: { page: Page; label: string }[] = [
 ]
 
 export function AppShell({ session }: { session: Session }) {
-  const { page, goTo } = usePage()
+  const { page, recipeId, goTo } = usePage()
   const { toast, showUndo, dismiss } = useUndo()
 
   return (
@@ -43,7 +43,11 @@ export function AppShell({ session }: { session: Session }) {
         </div>
       </header>
 
-      {page === 'overview' ? <Overview showUndo={showUndo} /> : <RecipesPage showUndo={showUndo} />}
+      {page === 'overview' ? (
+        <Overview showUndo={showUndo} openRecipe={(id) => goTo('recipes', id)} />
+      ) : (
+        <RecipesPage showUndo={showUndo} recipeId={recipeId} onSelect={(id) => goTo('recipes', id)} />
+      )}
 
       <UndoBar toast={toast} onDismiss={dismiss} />
     </div>

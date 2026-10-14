@@ -62,3 +62,5 @@ export function useItems() {
 
   return { items, loading, error, clearError: () => setError(''), addItem, updateItem, removeItem, restoreItem }
 }
+
+export type ItemsStore = ReturnType<typeof useItems>

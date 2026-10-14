@@ -2,26 +2,27 @@ import { useEffect, useState } from 'react'
 
 export type Page = 'overview' | 'recipes'
 
-// The current page is kept in the address (#recept), so a reload stays on the same page.
-const hashes: Record<Page, string> = { overview: '', recipes: '#recept' }
+type Location = { page: Page; recipeId: string | null }
 
-function pageFromHash(): Page {
-  return window.location.hash === hashes.recipes ? 'recipes' : 'overview'
+// The current page is kept in the address (#recept or #recept/<id>), so a reload stays on the same page.
+function fromHash(): Location {
+  const match = window.location.hash.match(/^#recept(?:\/(.+))?$/)
+  return match ? { page: 'recipes', recipeId: match[1] ?? null } : { page: 'overview', recipeId: null }
 }
 
 export function usePage() {
-  const [page, setPage] = useState<Page>(pageFromHash)
+  const [location, setLocation] = useState<Location>(fromHash)
 
   useEffect(() => {
-    const onChange = () => setPage(pageFromHash())
+    const onChange = () => setLocation(fromHash())
     window.addEventListener('hashchange', onChange)
     return () => window.removeEventListener('hashchange', onChange)
   }, [])
 
-  function goTo(next: Page) {
-    window.location.hash = hashes[next]
-    setPage(next)
+  function goTo(page: Page, recipeId: string | null = null) {
+    window.location.hash = page === 'recipes' ? `#recept${recipeId ? `/${recipeId}` : ''}` : ''
+    setLocation({ page, recipeId })
   }
 
-  return { page, goTo }
+  return { ...location, goTo }
 }

@@ -1,16 +1,17 @@
 import { useState } from 'react'
-import { useItems } from '../../hooks/useItems'
+import type { ItemsStore } from '../../hooks/useItems'
 import { statusFor, unitLabel } from '../../lib/constants'
 import type { Item } from '../../types'
 import { AddItemSearch, type NewItem } from './AddItemSearch'
 import { ItemRow } from './ItemRow'
 
 type Props = {
+  store: ItemsStore
   showUndo: (message: string, undo: () => void) => void
 }
 
-export function Pantry({ showUndo }: Props) {
-  const { items, loading, error, clearError, addItem, updateItem, removeItem, restoreItem } = useItems()
+export function Pantry({ store, showUndo }: Props) {
+  const { items, loading, error, clearError, addItem, updateItem, removeItem, restoreItem } = store
   const [showStaples, setShowStaples] = useState(false)
   const [focusId, setFocusId] = useState<string | null>(null)
 

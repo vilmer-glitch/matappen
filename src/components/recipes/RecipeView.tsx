@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { formatAmount, recipeUnitLabel } from '../../lib/recipeUnits'
+import { checkRecipe } from '../../lib/availability'
+import { unitLabel } from '../../lib/constants'
 import type { Item, Recipe } from '../../types'
 
 type Props = {
@@ -23,6 +25,8 @@ export function RecipeView({ recipe, itemsById, onEdit, onDelete, onCooked, repo
   // Changing servings here only scales the amounts on screen; it isn't saved
   const [servings, setServings] = useState(recipe.servings)
   const scale = servings / recipe.servings
+  const { missing, canCook } = checkRecipe(recipe, itemsById, servings)
+  const missingById = new Map(missing.map((m) => [m.item?.id, m]))
 
   return (
     <article className="space-y-6">
@@ -67,17 +71,33 @@ export function RecipeView({ recipe, itemsById, onEdit, onDelete, onCooked, repo
           <ul className="space-y-1">
             {recipe.ingredients.map((ing) => {
               const item = itemsById.get(ing.item_id)
+              const lacking = missingById.get(ing.item_id)
               return (
                 <li key={ing.item_id} className="flex gap-3">
                   <span className="w-20 text-right text-stone-500">
                     {ing.quantity !== null && `${formatAmount(ing.quantity * scale)} ${recipeUnitLabel(ing.unit)}`}
                   </span>
-                  <span className="text-stone-800">{item?.name ?? 'Okänd vara'}</span>
+                  <span className={lacking ? 'text-red-700' : 'text-stone-800'}>{item?.name ?? 'Okänd vara'}</span>
                   {item?.is_staple && <span className="text-xs leading-6 text-stone-400">basvara</span>}
+                  {lacking && (
+                    <span className="text-xs leading-6 text-red-600">
+                      {lacking.short !== null && item?.unit
+                        ? `saknas ${formatAmount(lacking.short)} ${unitLabel(item.unit)}`
+                        : 'saknas'}
+                    </span>
+                  )}
                 </li>
               )
             })}
           </ul>
+        )}
+
+        {recipe.ingredients.length > 0 && (
+          <p className={`mt-3 text-sm ${canCook ? 'text-emerald-700' : 'text-stone-500'}`}>
+            {canCook
+              ? `✓ Du har allt för ${servings} portioner.`
+              : `Saknar ${missing.length} ${missing.length === 1 ? 'vara' : 'varor'} för ${servings} portioner.`}
+          </p>
         )}
 
         {recipe.ingredients.length > 0 && (
