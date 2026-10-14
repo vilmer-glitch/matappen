@@ -67,6 +67,8 @@ En webbapp som håller koll på matvarorna hemma, visar vad jag kan laga och skr
 - [x] 5. Veckans rätter, automatisk inköpslista och "Klar med handlingen"
 - [x] 6. Jag lagade den här
 - [ ] 7. Gör appen installerbar (manifest och ikon), lägg upp den på GitHub och publicera på Vercel
+  - Klart: manifest och ikon, koden på https://github.com/vilmer-glitch/matappen (offentlig).
+  - Kvar: Vercel. Efter publicering: lägg till Vercel-adressen under Supabase → Authentication → URL Configuration, och överväg att stänga av nya konton.
 
 ## Senare, inte i version 1
 - AI-förslag på rätter. Först bara en knapp som kopierar lagret, så att jag kan fråga Claude i chatten.
