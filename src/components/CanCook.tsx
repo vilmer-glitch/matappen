@@ -1,4 +1,4 @@
-import { checkRecipe, type Missing } from '../lib/availability'
+import { checkRecipe, portionsText, type Missing } from '../lib/availability'
 import { unitLabel } from '../lib/constants'
 import { formatAmount } from '../lib/recipeUnits'
 import type { Item, Recipe } from '../types'
@@ -30,14 +30,19 @@ export function CanCook({ recipes, items, loading, openRecipe }: Props) {
           <p className="py-1.5 text-sm text-stone-400">Ingen rätt just nu.</p>
         ) : (
           <ul>
-            {ready.map(({ recipe }) => (
+            {ready.map(({ recipe, maxServings }) => (
               <li key={recipe.id}>
                 <button
                   onClick={() => openRecipe(recipe.id)}
                   className="flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-stone-100"
                 >
-                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                  <span className="text-stone-800">{recipe.name}</span>
+                  <span className="h-2 w-2 shrink-0 rounded-full bg-emerald-500" />
+                  <span className="flex-1 text-stone-800">{recipe.name}</span>
+                  {maxServings !== null && (
+                    <span className="text-xs text-stone-500" title="Så många portioner räcker det du har hemma till">
+                      {portionsText(maxServings)}
+                    </span>
+                  )}
                 </button>
               </li>
             ))}

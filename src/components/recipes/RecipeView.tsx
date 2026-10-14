@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { formatAmount, recipeUnitLabel } from '../../lib/recipeUnits'
-import { checkRecipe } from '../../lib/availability'
+import { checkRecipe, portionsText } from '../../lib/availability'
 import { unitLabel } from '../../lib/constants'
 import type { Item, Recipe } from '../../types'
 
@@ -25,7 +25,7 @@ export function RecipeView({ recipe, itemsById, onEdit, onDelete, onCooked, repo
   // Changing servings here only scales the amounts on screen; it isn't saved
   const [servings, setServings] = useState(recipe.servings)
   const scale = servings / recipe.servings
-  const { missing, canCook } = checkRecipe(recipe, itemsById, servings)
+  const { missing, maxServings } = checkRecipe(recipe, itemsById, servings)
   const missingById = new Map(missing.map((m) => [m.item?.id, m]))
 
   return (
@@ -93,11 +93,24 @@ export function RecipeView({ recipe, itemsById, onEdit, onDelete, onCooked, repo
         )}
 
         {recipe.ingredients.length > 0 && (
-          <p className={`mt-3 text-sm ${canCook ? 'text-emerald-700' : 'text-stone-500'}`}>
-            {canCook
-              ? `✓ Du har allt för ${servings} portioner.`
-              : `Saknar ${missing.length} ${missing.length === 1 ? 'vara' : 'varor'} för ${servings} portioner.`}
-          </p>
+          <div className="mt-3 space-y-1 text-sm">
+            <p className={missing.length === 0 ? 'text-emerald-700' : 'text-stone-500'}>
+              {missing.length === 0
+                ? `✓ Du har allt för ${portionsText(servings)}.`
+                : `Saknar ${missing.length} ${missing.length === 1 ? 'vara' : 'varor'} för ${portionsText(servings)}.`}
+            </p>
+            {maxServings !== null && (
+              <p className="text-stone-500">
+                Det du har hemma räcker till{' '}
+                <strong className="text-stone-700">{maxServings === 0 ? 'ingen portion' : portionsText(maxServings)}</strong>.
+                {maxServings > 0 && maxServings !== servings && (
+                  <button onClick={() => setServings(maxServings)} className="ml-2 text-emerald-700 hover:underline">
+                    Visa för {portionsText(maxServings)}
+                  </button>
+                )}
+              </p>
+            )}
+          </div>
         )}
 
         {recipe.ingredients.length > 0 && (

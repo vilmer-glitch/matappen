@@ -3,7 +3,7 @@ import { useItems } from '../../hooks/useItems'
 import { useRecipes, type RecipeDraft } from '../../hooks/useRecipes'
 import { statusFor, unitLabel } from '../../lib/constants'
 import { convert, formatAmount, recipeUnitLabel } from '../../lib/recipeUnits'
-import { checkRecipe } from '../../lib/availability'
+import { checkRecipe, type Availability } from '../../lib/availability'
 import type { Recipe } from '../../types'
 import type { NewItem } from '../pantry/AddItemSearch'
 import { RecipeForm } from './RecipeForm'
@@ -168,7 +168,7 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
                   }`}
                 >
                   <span className="truncate">{recipe.name}</span>
-                  <Badge missing={availability.get(recipe.id)?.missing.length ?? 0} />
+                  <Badge status={availability.get(recipe.id)} />
                 </button>
               </li>
             ))}
@@ -232,14 +232,21 @@ const filters = [
   { value: 'almost', label: 'Saknar 1–2' },
 ] as const
 
-// Small label showing whether the recipe can be cooked with what's at home
-function Badge({ missing }: { missing: number }) {
-  if (missing === 0) return <span className="shrink-0 rounded-full bg-emerald-100 px-2 text-xs text-emerald-800">Kan lagas</span>
+// Small label showing whether the recipe can be cooked with what's at home, and how many servings
+function Badge({ status }: { status: Availability | undefined }) {
+  if (!status) return null
+  if (status.canCook) {
+    return (
+      <span className="shrink-0 rounded-full bg-emerald-100 px-2 text-xs text-emerald-800">
+        {status.maxServings === null ? 'Kan lagas' : `${status.maxServings} port`}
+      </span>
+    )
+  }
   return (
     <span
-      className={`shrink-0 rounded-full px-2 text-xs ${missing <= 2 ? 'bg-amber-100 text-amber-800' : 'bg-stone-100 text-stone-500'}`}
+      className={`shrink-0 rounded-full px-2 text-xs ${status.almost ? 'bg-amber-100 text-amber-800' : 'bg-stone-100 text-stone-500'}`}
     >
-      Saknar {missing}
+      Saknar {status.missing.length}
     </span>
   )
 }
