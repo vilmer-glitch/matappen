@@ -41,10 +41,14 @@ En webbapp som håller koll på matvarorna hemma, visar vad jag kan laga och skr
   - Att lösa i steg 5: "lite kvar"-förslag på inköpslistan behöver ett nytt sätt nu när statusknapparna är borta (t.ex. en gräns per vara).
 - **Basvaror:** varor som alltid antas finnas, till exempel salt, olja och kryddor. Markeras med en bock och dras aldrig av.
 - **Rätter:** namn och ingredienser, plus valfri länk och anteckning.
+  - Egen flik "Recept": lista till vänster, vald rätt till höger. − / + vid portionerna skalar mängderna på skärmen.
+  - Ingredienser kopplas till varor i lagret. Ny ingrediens skapas i lagret med mängd 0.
+  - Recept kan använda närliggande enheter (g/kg, ml/dl/l/msk/tsk/krm, st). Appen räknar om till lagrets enhet.
+  - En vara som används i ett recept kan inte tas bort från lagret (sätt mängden till 0 i stället).
 - **Vad kan jag laga?:** visar rätter jag kan laga nu och rätter där bara 1–2 varor saknas.
 - **Veckans rätter:** jag väljer rätter med ett klick. Allt som saknas för dem hamnar automatiskt på inköpslistan, en gång per vara även om flera rätter behöver den.
 - **Inköpslista:** automatiska och egna varor. Varor med status "lite kvar" visas som förslag på listan. Knappen "Klar med handlingen" flyttar avbockade varor till lagret med status finns.
-- **Jag lagade den här:** öppnar en snabb ruta med rättens ingredienser (utom basvaror) där jag med ett klick väljer finns kvar / lite kvar / slut. Rätten markeras som lagad.
+- **Jag lagade den här:** jag väljer hur många portioner jag lagade, och appen drar av ingredienserna för just så många portioner från lagret (4 portioner köttfärssås = hela receptet, 2 portioner = halva). Basvaror dras aldrig av. Räcker inte lagret blir mängden 0. Ångra-knappen återställer allt. Rätten markeras som lagad om den var planerad.
 
 ## Datamodell (förslag)
 - `items`: varor med kategori, enhet, `is_staple` (basvara), status och mängd hemma (`quantity`)
@@ -56,7 +60,7 @@ En webbapp som håller koll på matvarorna hemma, visar vad jag kan laga och skr
 ## Byggordning
 - [x] 1. Projektgrund, Supabase-koppling och inloggning
 - [x] 2. Lager med status och basvaror
-- [ ] 3. Rätter med ingredienser
+- [x] 3. Rätter med ingredienser
 - [ ] 4. Vad kan jag laga?
 - [ ] 5. Veckans rätter, automatisk inköpslista och "Klar med handlingen"
 - [ ] 6. Jag lagade den här

@@ -21,9 +21,8 @@ export function Pantry({ showUndo }: Props) {
     showUndo(`${item.name}: ${text}`, () => updateItem(item.id, { quantity: before, status: statusFor(before) }))
   }
 
-  function remove(item: Item) {
-    removeItem(item.id)
-    showUndo(`${item.name} togs bort`, () => restoreItem(item))
+  async function remove(item: Item) {
+    if (await removeItem(item)) showUndo(`${item.name} togs bort`, () => restoreItem(item))
   }
 
   // Picking an existing item from the search jumps to its amount field
@@ -42,7 +41,7 @@ export function Pantry({ showUndo }: Props) {
       quantity: isStaple ? null : quantity,
       status: isStaple ? 'in_stock' : statusFor(quantity),
     })
-    if (created) showUndo(`${name} lades till`, () => removeItem(created.id))
+    if (created) showUndo(`${name} lades till`, () => removeItem(created))
   }
 
   if (loading) return <p className="text-sm text-stone-400">Hämtar lagret…</p>

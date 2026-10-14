@@ -39,10 +39,18 @@ export function useItems() {
     if (error) setError('Kunde inte spara ändringen.')
   }, [])
 
-  const removeItem = useCallback(async (id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id))
-    const { error } = await supabase.from('items').delete().eq('id', id)
-    if (error) setError('Kunde inte ta bort varan.')
+  // Returns false if the item couldn't be removed (e.g. it is used in a recipe)
+  const removeItem = useCallback(async (item: Item) => {
+    setItems((prev) => prev.filter((i) => i.id !== item.id))
+    const { error } = await supabase.from('items').delete().eq('id', item.id)
+    if (!error) return true
+    setItems((prev) => [...prev, item])
+    setError(
+      error.code === '23503'
+        ? `${item.name} används i ett recept och kan inte tas bort. Sätt mängden till 0 i stället.`
+        : 'Kunde inte ta bort varan.',
+    )
+    return false
   }, [])
 
   // Puts a removed item back with the same id

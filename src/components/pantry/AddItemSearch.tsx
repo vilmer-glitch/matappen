@@ -8,12 +8,21 @@ type Props = {
   items: Item[]
   onPick: (item: Item) => void
   onCreate: (newItem: NewItem) => void
+  // Ask for the amount at home when creating a new item (off when picking recipe ingredients)
+  withQuantity?: boolean
+  placeholder?: string
 }
 
 const GROUPS = [...CATEGORIES, { value: 'staple', label: 'Basvara' }] as const
 
 // Search field that suggests existing items while typing, or creates a new one.
-export function AddItemSearch({ items, onPick, onCreate }: Props) {
+export function AddItemSearch({
+  items,
+  onPick,
+  onCreate,
+  withQuantity = true,
+  placeholder = 'Sök eller lägg till vara…',
+}: Props) {
   const [query, setQuery] = useState('')
   const [newName, setNewName] = useState<string | null>(null)
   const [group, setGroup] = useState<NewItem['group']>('fridge')
@@ -68,14 +77,17 @@ export function AddItemSearch({ items, onPick, onCreate }: Props) {
 
         {group !== 'staple' && (
           <div className="flex items-center gap-2">
-            <input
-              autoFocus
-              inputMode="decimal"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              placeholder="Mängd"
-              className="w-24 rounded-md border border-stone-300 px-2 py-1.5 text-sm"
-            />
+            {withQuantity && (
+              <input
+                autoFocus
+                inputMode="decimal"
+                value={quantity}
+                onChange={(e) => setQuantity(e.target.value)}
+                placeholder="Mängd"
+                className="w-24 rounded-md border border-stone-300 px-2 py-1.5 text-sm"
+              />
+            )}
+            {!withQuantity && <span className="text-sm text-stone-500">Enhet i lagret:</span>}
             <Choice options={UNITS} value={unit} onChange={setUnit} />
           </div>
         )}
@@ -102,7 +114,7 @@ export function AddItemSearch({ items, onPick, onCreate }: Props) {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={(e) => e.key === 'Escape' && setQuery('')}
-        placeholder="Sök eller lägg till vara…"
+        placeholder={placeholder}
         className="w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none"
       />
       {text && (
