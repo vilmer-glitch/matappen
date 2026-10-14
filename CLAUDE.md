@@ -35,7 +35,7 @@ En webbapp som håller koll på matvarorna hemma, visar vad jag kan laga och skr
 ## Funktioner i version 1
 - **Lager:** alla varor hemma i tre grupper: Kyl (kyl och frys), Skafferi (torra varor, t.ex. pasta) och Basvaror.
   - Varor i Kyl och Skafferi har bara mängd, inga statusknappar. Mängd 0 = slut.
-  - Varje vara har en låst enhet som väljs när den läggs till: g, ml, l eller st (kyckling i g, mjölk i l, rödlök i st).
+  - Varje vara har en låst enhet som väljs när den läggs till: g, ml, dl, l eller st (kyckling i g, grädde i dl, mjölk i l, rödlök i st).
   - Basvaror har ingen mängd.
   - Från början finns bara basvarorna i lagret.
   - Att lösa i steg 5: "lite kvar"-förslag på inköpslistan behöver ett nytt sätt nu när statusknapparna är borta (t.ex. en gräns per vara).

@@ -8,6 +8,7 @@ export const CATEGORIES = [
 export const UNITS = [
   { value: 'g', label: 'g' },
   { value: 'ml', label: 'ml' },
+  { value: 'dl', label: 'dl' },
   { value: 'l', label: 'l' },
   { value: 'pcs', label: 'st' },
 ] as const
