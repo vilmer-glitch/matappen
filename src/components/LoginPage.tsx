@@ -7,21 +7,45 @@ const errorMessages: Record<string, string> = {
   user_already_exists: 'Det finns redan ett konto med den e-posten.',
   weak_password: 'Lösenordet är för svagt. Använd minst 6 tecken.',
   over_request_rate_limit: 'För många försök. Vänta en stund och prova igen.',
+  over_email_send_rate_limit: 'För många mejl har skickats. Vänta en stund och prova igen.',
+}
+
+type Mode = 'login' | 'signup' | 'reset'
+
+const titles: Record<Mode, string> = {
+  login: 'Logga in',
+  signup: 'Skapa konto',
+  reset: 'Glömt lösenordet',
 }
 
 export function LoginPage() {
-  const [mode, setMode] = useState<'login' | 'signup'>('login')
+  const [mode, setMode] = useState<Mode>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [info, setInfo] = useState('')
   const [loading, setLoading] = useState(false)
 
+  function switchMode(next: Mode) {
+    setMode(next)
+    setError('')
+    setInfo('')
+  }
+
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError('')
     setInfo('')
     setLoading(true)
+
+    if (mode === 'reset') {
+      // The link in the email leads back to this app, where you pick a new password
+      const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin })
+      setLoading(false)
+      if (error) setError(errorMessages[error.code ?? ''] ?? 'Något gick fel. Försök igen.')
+      else setInfo('Om det finns ett konto med den e-posten har vi skickat ett mejl med en länk. Kolla även skräpposten.')
+      return
+    }
 
     const { data, error } =
       mode === 'login'
@@ -40,7 +64,7 @@ export function LoginPage() {
     <main className="flex min-h-screen items-center justify-center bg-stone-100 p-4">
       <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4 rounded-xl bg-white p-8 shadow">
         <h1 className="text-2xl font-semibold text-stone-800">Matappen</h1>
-        <p className="text-stone-500">{mode === 'login' ? 'Logga in' : 'Skapa konto'}</p>
+        <p className="text-stone-500">{titles[mode]}</p>
 
         <label className="block">
           <span className="text-sm text-stone-600">E-post</span>
@@ -54,18 +78,31 @@ export function LoginPage() {
           />
         </label>
 
-        <label className="block">
-          <span className="text-sm text-stone-600">Lösenord</span>
-          <input
-            type="password"
-            required
-            minLength={6}
-            autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2 focus:border-emerald-600 focus:outline-none"
-          />
-        </label>
+        {mode !== 'reset' && (
+          <label className="block">
+            <span className="flex justify-between text-sm text-stone-600">
+              Lösenord
+              {mode === 'login' && (
+                <button
+                  type="button"
+                  onClick={() => switchMode('reset')}
+                  className="text-stone-400 hover:text-stone-700"
+                >
+                  Glömt lösenordet?
+                </button>
+              )}
+            </span>
+            <input
+              type="password"
+              required
+              minLength={6}
+              autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2 focus:border-emerald-600 focus:outline-none"
+            />
+          </label>
+        )}
 
         {error && <p className="text-sm text-red-600">{error}</p>}
         {info && <p className="text-sm text-emerald-700">{info}</p>}
@@ -75,15 +112,15 @@ export function LoginPage() {
           disabled={loading}
           className="w-full rounded-md bg-emerald-600 py-2 font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
         >
-          {loading ? 'Vänta…' : mode === 'login' ? 'Logga in' : 'Skapa konto'}
+          {loading ? 'Vänta…' : mode === 'reset' ? 'Skicka länk' : titles[mode]}
         </button>
 
         <button
           type="button"
-          onClick={() => setMode(mode === 'login' ? 'signup' : 'login')}
+          onClick={() => switchMode(mode === 'login' ? 'signup' : 'login')}
           className="w-full text-sm text-stone-500 hover:text-stone-800"
         >
-          {mode === 'login' ? 'Inget konto? Skapa ett' : 'Har du redan ett konto? Logga in'}
+          {mode === 'login' ? 'Inget konto? Skapa ett' : 'Tillbaka till inloggningen'}
         </button>
       </form>
     </main>
