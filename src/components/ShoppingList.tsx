@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Check, ChevronDown, Lightbulb, PackageCheck, Plus, ShoppingBasket, X } from 'lucide-react'
 import type { ItemsStore } from '../hooks/useItems'
 import type { PlannedMealsStore } from '../hooks/usePlannedMeals'
 import type { ShoppingListStore } from '../hooks/useShoppingList'
@@ -107,7 +108,7 @@ export function ShoppingList({ recipes, store, planned, list, showUndo }: Props)
 
   return (
     <div>
-      {list.error && <p className="mb-3 rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">{list.error}</p>}
+      {list.error && <p className="mb-3 rounded-xl bg-danger-soft px-3 py-2 text-sm text-danger">{list.error}</p>}
 
       <AddItemSearch
         items={store.items}
@@ -117,7 +118,13 @@ export function ShoppingList({ recipes, store, planned, list, showUndo }: Props)
         placeholder="Lägg till på listan…"
       />
 
-      {lines.length === 0 && <p className="mb-3 text-sm text-faint">Listan är tom.</p>}
+      {lines.length === 0 && (
+        <div className="mb-4 flex flex-col items-center rounded-xl bg-surface-2 px-4 py-6 text-center">
+          <ShoppingBasket size={28} className="mb-2 text-faint" />
+          <p className="text-sm text-muted">Listan är tom.</p>
+          <p className="text-xs text-faint">Det som veckans rätter saknar hamnar här automatiskt.</p>
+        </div>
+      )}
 
       <ul className="divide-y divide-line">
         {[...toBuy, ...done].map((line) => (
@@ -134,31 +141,38 @@ export function ShoppingList({ recipes, store, planned, list, showUndo }: Props)
       {done.length > 0 && (
         <button
           onClick={doneShopping}
-          className="mt-4 w-full rounded-md bg-accent py-2 text-sm font-medium text-on-accent hover:bg-accent-strong"
+          className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-accent py-3 text-sm font-semibold text-on-accent shadow-sm hover:bg-accent-strong"
         >
+          <PackageCheck size={18} />
           Klar med handlingen ({done.length})
         </button>
       )}
 
       {suggestions.length > 0 && (
-        <section className="mt-4 border-t border-line pt-3">
+        <section className="mt-5 rounded-xl bg-surface-2 px-3 py-2">
           <button
             onClick={() => setShowSuggestions(!showSuggestions)}
-            className="text-xs font-semibold uppercase tracking-wide text-faint hover:text-ink"
+            className="flex w-full items-center gap-2 py-1 text-sm font-semibold text-muted hover:text-ink"
           >
-            {showSuggestions ? '▾' : '▸'} Slut hemma ({suggestions.length})
+            <Lightbulb size={16} className="text-warn" />
+            Slut hemma
+            <span className="text-faint">{suggestions.length}</span>
+            <ChevronDown size={16} className={`ml-auto transition-transform ${showSuggestions ? 'rotate-180' : ''}`} />
           </button>
           {showSuggestions && (
-            <ul className="mt-1">
+            <div className="flex flex-wrap gap-2 py-2">
               {suggestions.map((item) => (
-                <li key={item.id} className="flex items-center justify-between py-1 text-sm text-muted">
+                <button
+                  key={item.id}
+                  onClick={() => addManual(item)}
+                  title="Lägg till på listan"
+                  className="flex items-center gap-1 rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-ink hover:border-accent hover:text-accent-strong"
+                >
+                  <Plus size={14} />
                   {item.name}
-                  <button onClick={() => addManual(item)} className="rounded-md px-2 text-accent-strong hover:bg-accent-soft">
-                    + Lägg till
-                  </button>
-                </li>
+                </button>
               ))}
-            </ul>
+            </div>
           )}
         </section>
       )}
@@ -188,20 +202,24 @@ function ShoppingLine({ line, onToggle, onQuantity, onRemove }: LineProps) {
   }
 
   return (
-    <li className="group flex items-center gap-2 py-1.5">
-      <input
-        type="checkbox"
-        checked={line.checked}
-        onChange={onToggle}
-        className="h-4 w-4 shrink-0 accent-[var(--accent)]"
-        title="Bocka av"
-      />
+    <li className="group flex min-h-12 items-center gap-3 py-1.5">
+      <button
+        onClick={onToggle}
+        role="checkbox"
+        aria-checked={line.checked}
+        title={line.checked ? 'Ångra avbockning' : 'Bocka av'}
+        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 ${
+          line.checked ? 'border-olive bg-olive text-surface' : 'border-line hover:border-olive'
+        }`}
+      >
+        {line.checked && <Check size={16} strokeWidth={3} />}
+      </button>
       <span className={`min-w-0 flex-1 ${line.checked ? 'text-faint line-through' : 'text-ink'}`}>
-        <span className="block truncate">{line.item.name}</span>
+        <span className="block truncate font-semibold">{line.item.name}</span>
         {line.recipes.length > 0 && <span className="block truncate text-xs text-faint">{line.recipes.join(', ')}</span>}
       </span>
       {line.item.unit && (
-        <label className="flex items-center gap-1 text-sm text-muted">
+        <label className="flex items-center rounded-full bg-surface-2 pr-3 text-sm text-muted focus-within:ring-2 focus-within:ring-accent">
           <input
             inputMode="decimal"
             value={value}
@@ -210,7 +228,7 @@ function ShoppingLine({ line, onToggle, onQuantity, onRemove }: LineProps) {
             onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
             placeholder="?"
             title="Ändra till det du köpte"
-            className="w-16 rounded border border-transparent px-1.5 py-0.5 text-right text-ink hover:border-line focus:border-accent focus:outline-none"
+            className="w-16 rounded-full bg-transparent py-1 pr-1 text-right font-semibold text-ink focus:outline-none"
           />
           <span className="w-5">{unitLabel(line.item.unit)}</span>
         </label>
@@ -219,9 +237,9 @@ function ShoppingLine({ line, onToggle, onQuantity, onRemove }: LineProps) {
         <button
           onClick={onRemove}
           title="Ta bort från listan"
-          className="px-1 text-faint hover:text-danger [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
+          className="rounded-full p-1.5 text-faint hover:bg-danger-soft hover:text-danger [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
         >
-          ×
+          <X size={16} />
         </button>
       )}
     </li>

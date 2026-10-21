@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { ChevronDown, Refrigerator, Sparkles, Wheat, type LucideIcon } from 'lucide-react'
 import type { ItemsStore } from '../../hooks/useItems'
 import { statusFor, unitLabel } from '../../lib/constants'
 import type { Item } from '../../types'
@@ -82,23 +83,26 @@ export function Pantry({ store, showUndo, openItem }: Props) {
         </p>
       )}
 
-      <Group title="Kyl" count={fridge.length}>
-        {fridge.length ? rows(fridge) : <Empty />}
+      <Group title="Kyl" icon={Refrigerator} count={fridge.length}>
+        {fridge.length ? rows(fridge) : <Empty text="Inget i kylen än. Sök ovan för att lägga till." />}
       </Group>
-      <Group title="Skafferi" count={pantry.length}>
-        {pantry.length ? rows(pantry) : <Empty />}
+      <Group title="Skafferi" icon={Wheat} count={pantry.length}>
+        {pantry.length ? rows(pantry) : <Empty text="Inget i skafferiet än." />}
       </Group>
 
-      <section className="border-t border-line pt-3">
+      <section className="rounded-xl bg-surface-2 px-3 py-2">
         <button
           onClick={() => setShowStaples(!showStaples)}
-          className="text-xs font-semibold uppercase tracking-wide text-faint hover:text-ink"
+          className="flex w-full items-center gap-2 py-1 text-sm font-semibold text-muted hover:text-ink"
         >
-          {showStaples ? '▾' : '▸'} Basvaror ({staples.length})
+          <Sparkles size={16} className="text-olive" />
+          Basvaror
+          <span className="text-faint">{staples.length}</span>
+          <ChevronDown size={16} className={`ml-auto transition-transform ${showStaples ? 'rotate-180' : ''}`} />
         </button>
         {showStaples && (
           <>
-            <p className="mt-1 text-xs text-faint">Finns alltid hemma och dras aldrig av.</p>
+            <p className="pb-1 text-xs text-faint">Finns alltid hemma och dras aldrig av.</p>
             {rows(staples)}
           </>
         )}
@@ -107,17 +111,19 @@ export function Pantry({ store, showUndo, openItem }: Props) {
   )
 }
 
-function Group({ title, count, children }: { title: string; count: number; children: React.ReactNode }) {
+function Group({ title, icon: Icon, count, children }: { title: string; icon: LucideIcon; count: number; children: React.ReactNode }) {
   return (
-    <section className="mb-4">
-      <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-faint">
-        {title} ({count})
+    <section className="mb-5">
+      <h3 className="mb-1 flex items-center gap-2 text-sm font-semibold text-muted">
+        <Icon size={16} className="text-accent" />
+        {title}
+        <span className="text-faint">{count}</span>
       </h3>
       {children}
     </section>
   )
 }
 
-function Empty() {
-  return <p className="py-1.5 text-sm text-faint">Inga varor än.</p>
+function Empty({ text }: { text: string }) {
+  return <p className="py-2 text-sm text-faint">{text}</p>
 }

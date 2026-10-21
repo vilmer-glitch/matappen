@@ -1,3 +1,4 @@
+import { Check, Plus } from 'lucide-react'
 import { checkRecipe, portionsText, type Missing } from '../lib/availability'
 import { unitLabel } from '../lib/constants'
 import { formatAmount } from '../lib/recipeUnits'
@@ -28,21 +29,20 @@ export function CanCook({ recipes, items, loading, openRecipe, plannedIds, onPla
   return (
     <div className="space-y-4">
       <section>
-        <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-faint">Kan lagas nu ({ready.length})</h3>
+        <h3 className="mb-1 flex items-center gap-2 text-sm font-semibold text-muted"><span className="h-2.5 w-2.5 rounded-full bg-olive" />Kan lagas nu <span className="text-faint">{ready.length}</span></h3>
         {ready.length === 0 ? (
-          <p className="py-1.5 text-sm text-faint">Ingen rätt just nu.</p>
+          <p className="px-3 py-1.5 text-sm text-faint">Ingen rätt just nu.</p>
         ) : (
           <ul>
             {ready.map(({ recipe, maxServings }) => (
               <li key={recipe.id} className="flex items-center gap-1">
                 <button
                   onClick={() => openRecipe(recipe.id)}
-                  className="flex min-w-0 flex-1 items-center gap-2 rounded-md px-2 py-1.5 text-left hover:bg-surface-2"
+                  className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-xl px-3 py-1.5 text-left hover:bg-surface-2"
                 >
-                  <span className="h-2 w-2 shrink-0 rounded-full bg-olive" />
-                  <span className="flex-1 text-ink">{recipe.name}</span>
+                  <span className="flex-1 font-semibold text-ink">{recipe.name}</span>
                   {maxServings !== null && (
-                    <span className="text-xs text-muted" title="Så många portioner räcker det du har hemma till">
+                    <span className="rounded-full bg-olive-soft px-2 py-0.5 text-xs font-semibold text-olive" title="Så många portioner räcker det du har hemma till">
                       {portionsText(maxServings)}
                     </span>
                   )}
@@ -55,20 +55,19 @@ export function CanCook({ recipes, items, loading, openRecipe, plannedIds, onPla
       </section>
 
       <section>
-        <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-faint">Saknar 1–2 varor ({almost.length})</h3>
+        <h3 className="mb-1 flex items-center gap-2 text-sm font-semibold text-muted"><span className="h-2.5 w-2.5 rounded-full bg-warn" />Saknar 1–2 varor <span className="text-faint">{almost.length}</span></h3>
         {almost.length === 0 ? (
-          <p className="py-1.5 text-sm text-faint">Ingen rätt just nu.</p>
+          <p className="px-3 py-1.5 text-sm text-faint">Ingen rätt just nu.</p>
         ) : (
           <ul>
             {almost.map(({ recipe, missing }) => (
               <li key={recipe.id} className="flex items-start gap-1">
                 <button
                   onClick={() => openRecipe(recipe.id)}
-                  className="flex min-w-0 flex-1 items-start gap-2 rounded-md px-2 py-1.5 text-left hover:bg-surface-2"
+                  className="flex min-h-11 min-w-0 flex-1 items-start gap-2 rounded-xl px-3 py-1.5 text-left hover:bg-surface-2"
                 >
-                  <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-warn" />
                   <span>
-                    <span className="block text-ink">{recipe.name}</span>
+                    <span className="block font-semibold text-ink">{recipe.name}</span>
                     <span className="block text-xs text-muted">Saknar {missing.map(describeMissing).join(', ')}</span>
                   </span>
                 </button>
@@ -90,14 +89,20 @@ export function describeMissing({ item, short }: Missing) {
 
 // One click adds the recipe to Veckans rätter
 function PlanButton({ planned, onPlan }: { planned: boolean; onPlan: () => void }) {
-  if (planned) return <span className="px-2 py-1.5 text-xs text-faint">Vald</span>
+  if (planned)
+    return (
+      <span className="flex items-center gap-1 px-2 py-1.5 text-xs font-semibold text-olive" title="Finns i veckans rätter">
+        <Check size={14} />
+        Vald
+      </span>
+    )
   return (
     <button
       onClick={onPlan}
       title="Lägg till i veckans rätter"
-      className="rounded-md px-2 py-1 text-sm font-medium text-accent-strong hover:bg-accent-soft"
+      className="rounded-full bg-accent-soft p-2 text-accent-strong hover:bg-accent hover:text-on-accent"
     >
-      +
+      <Plus size={16} />
     </button>
   )
 }

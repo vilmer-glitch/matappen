@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react'
+import { Search } from 'lucide-react'
 import { CATEGORIES, UNITS, unitLabel, type Category, type Unit } from '../../lib/constants'
 import type { Item } from '../../types'
 
@@ -68,7 +69,7 @@ export function AddItemSearch({
 
   if (newName !== null) {
     return (
-      <form onSubmit={create} className="mb-4 space-y-3 rounded-lg bg-surface-2 p-3">
+      <form onSubmit={create} className="mb-4 space-y-3 rounded-xl border border-line bg-surface-2 p-4">
         <p className="text-sm text-muted">
           Ny vara: <strong className="text-ink">{newName}</strong>
         </p>
@@ -84,7 +85,7 @@ export function AddItemSearch({
                 value={quantity}
                 onChange={(e) => setQuantity(e.target.value)}
                 placeholder="Mängd"
-                className="w-24 rounded-md border border-line px-2 py-1.5 text-sm"
+                className="w-24 rounded-full border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
               />
             )}
             {!withQuantity && <span className="text-sm text-muted">Enhet i lagret:</span>}
@@ -93,13 +94,13 @@ export function AddItemSearch({
         )}
 
         <div className="flex gap-2">
-          <button type="submit" className="flex-1 rounded-md bg-accent py-1.5 text-sm font-medium text-on-accent">
+          <button type="submit" className="flex-1 rounded-full bg-accent py-2 text-sm font-semibold text-on-accent hover:bg-accent-strong">
             Lägg till{group !== 'staple' && quantity.trim() ? ` ${quantity.trim()} ${unitLabel(unit)}` : ''}
           </button>
           <button
             type="button"
             onClick={() => setNewName(null)}
-            className="rounded-md px-3 py-1.5 text-sm text-muted hover:bg-line"
+            className="rounded-full px-4 py-2 text-sm text-muted hover:bg-line"
           >
             Avbryt
           </button>
@@ -110,21 +111,22 @@ export function AddItemSearch({
 
   return (
     <form onSubmit={handleSearch} className="relative mb-4">
+      <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-faint" />
       <input
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onKeyDown={(e) => e.key === 'Escape' && setQuery('')}
         placeholder={placeholder}
-        className="w-full rounded-md border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
+        className="w-full rounded-full border border-line bg-surface-2 py-2.5 pl-10 pr-4 text-sm placeholder:text-faint focus:border-accent focus:bg-surface focus:outline-none"
       />
       {text && (
-        <ul className="absolute z-10 mt-1 w-full overflow-hidden rounded-md border border-line bg-surface text-sm shadow-lg">
+        <ul className="absolute z-10 mt-2 w-full overflow-hidden rounded-xl border border-line bg-surface text-sm shadow-lg">
           {matches.map((item) => (
             <li key={item.id}>
               <button
                 type="button"
                 onClick={() => pick(item)}
-                className="flex w-full justify-between px-3 py-2 text-left hover:bg-surface-2"
+                className="flex w-full justify-between px-4 py-2.5 text-left hover:bg-surface-2"
               >
                 <span>{item.name}</span>
                 <span className="text-faint">
@@ -142,7 +144,7 @@ export function AddItemSearch({
               <button
                 type="button"
                 onClick={startCreate}
-                className="w-full px-3 py-2 text-left text-accent-strong hover:bg-surface-2"
+                className="w-full px-4 py-2.5 text-left font-semibold text-accent-strong hover:bg-surface-2"
               >
                 + Lägg till ”{text}”
               </button>
@@ -165,13 +167,13 @@ export function Choice<T extends string>({
   onChange: (value: T) => void
 }) {
   return (
-    <div className="flex overflow-hidden rounded-md border border-line text-sm">
+    <div className="flex overflow-hidden rounded-full border border-line text-sm">
       {options.map((o) => (
         <button
           key={o.value}
           type="button"
           onClick={() => onChange(o.value)}
-          className={`flex-1 px-3 py-1.5 ${o.value === value ? 'bg-accent text-on-accent' : 'bg-surface text-muted hover:bg-surface-2'}`}
+          className={`flex-1 px-3 py-2 font-semibold ${o.value === value ? 'bg-accent text-on-accent' : 'bg-surface text-muted hover:bg-surface-2'}`}
         >
           {o.label}
         </button>

@@ -1,3 +1,4 @@
+import { Check, Minus, Plus, UtensilsCrossed, X } from 'lucide-react'
 import { portionsText } from '../lib/availability'
 import { statusFor } from '../lib/constants'
 import { planCooking } from '../lib/cook'
@@ -53,67 +54,76 @@ export function WeeklyMeals({ recipes, store, planned, showUndo, openRecipe }: P
 
   return (
     <div>
-      {planned.error && <p className="mb-3 rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">{planned.error}</p>}
+      {planned.error && <p className="mb-3 rounded-xl bg-danger-soft px-3 py-2 text-sm text-danger">{planned.error}</p>}
 
       {toCook.length === 0 && cooked.length === 0 && (
-        <p className="mb-3 text-sm text-faint">Inga rätter valda. Välj bland förslagen nedan eller i listan.</p>
+        <div className="mb-4 flex flex-col items-center rounded-xl bg-surface-2 px-4 py-6 text-center">
+          <UtensilsCrossed size={28} className="mb-2 text-faint" />
+          <p className="text-sm text-muted">Inga rätter valda än.</p>
+          <p className="text-xs text-faint">Tryck + vid en rätt under "Vad kan jag laga?" eller välj nedan.</p>
+        </div>
       )}
 
-      <ul className="divide-y divide-line">
+      <ul className="space-y-2">
         {toCook.map((meal) => {
           const recipe = recipesById.get(meal.recipe_id)!
           return (
-            <li key={meal.id} className="group flex items-center gap-2 py-1.5">
-              <button onClick={() => openRecipe(recipe.id)} className="min-w-0 flex-1 truncate text-left text-ink hover:underline">
+            <li key={meal.id} className="group flex items-center gap-2 rounded-xl border border-line bg-surface-2/60 py-2 pl-3 pr-2">
+              <button
+                onClick={() => openRecipe(recipe.id)}
+                className="min-w-0 flex-1 truncate text-left font-semibold text-ink hover:underline"
+              >
                 {recipe.name}
               </button>
-              <div className="flex items-center rounded-md border border-line text-xs text-muted">
+              <div className="flex items-center rounded-full bg-surface text-xs font-semibold text-muted">
                 <button
                   onClick={() => planned.updateMeal(meal.id, { servings: Math.max(1, meal.servings - 1) })}
-                  className="px-1.5 py-0.5 hover:bg-surface-2"
+                  className="rounded-full p-1.5 hover:bg-line"
                   title="Färre portioner"
                 >
-                  −
+                  <Minus size={14} />
                 </button>
-                <span className="w-12 text-center">{meal.servings} port</span>
+                <span className="w-11 text-center">{meal.servings} port</span>
                 <button
                   onClick={() => planned.updateMeal(meal.id, { servings: meal.servings + 1 })}
-                  className="px-1.5 py-0.5 hover:bg-surface-2"
+                  className="rounded-full p-1.5 hover:bg-line"
                   title="Fler portioner"
                 >
-                  +
+                  <Plus size={14} />
                 </button>
               </div>
               <button
                 onClick={() => markCooked(meal, recipe)}
                 title={`Jag lagade ${portionsText(meal.servings)} – drar av från lagret`}
-                className="rounded-md border border-accent px-2 py-0.5 text-xs text-accent-strong hover:bg-accent-soft"
+                className="flex items-center gap-1 rounded-full bg-olive-soft px-3 py-1.5 text-xs font-semibold text-olive hover:brightness-95"
               >
+                <Check size={14} />
                 Lagad
               </button>
               <button
                 onClick={() => remove(meal, recipe.name)}
                 title="Ta bort"
-                className="px-1 text-faint hover:text-danger [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
+                className="rounded-full p-1.5 text-faint hover:bg-danger-soft hover:text-danger [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
               >
-                ×
+                <X size={16} />
               </button>
             </li>
           )
         })}
         {cooked.map((meal) => (
-          <li key={meal.id} className="flex items-center gap-2 py-1.5 text-faint">
+          <li key={meal.id} className="flex items-center gap-2 px-3 py-1 text-sm text-faint">
+            <Check size={14} />
             <span className="flex-1 truncate line-through">{recipesById.get(meal.recipe_id)!.name}</span>
-            <span className="text-xs">{meal.servings} port · lagad</span>
+            <span className="text-xs">{meal.servings} port</span>
           </li>
         ))}
       </ul>
 
-      <div className="mt-2 flex items-center justify-between gap-2">
+      <div className="mt-3 flex items-center justify-between gap-2">
         <select
           value=""
           onChange={(e) => add(e.target.value)}
-          className="flex-1 rounded-md border border-line px-2 py-1.5 text-sm text-muted"
+          className="flex-1 rounded-full border border-line bg-surface-2 px-4 py-2.5 text-sm font-semibold text-muted"
         >
           <option value="">+ Lägg till rätt…</option>
           {[...recipes]
@@ -125,7 +135,7 @@ export function WeeklyMeals({ recipes, store, planned, showUndo, openRecipe }: P
             ))}
         </select>
         {cooked.length > 0 && (
-          <button onClick={clearCooked} className="text-xs text-faint hover:text-ink">
+          <button onClick={clearCooked} className="rounded-full px-3 py-2 text-xs font-semibold text-faint hover:bg-surface-2 hover:text-ink">
             Rensa lagade
           </button>
         )}

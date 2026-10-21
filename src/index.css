@@ -71,15 +71,18 @@
   --font-display: "Fraunces", ui-serif, Georgia, serif;
 }
 
-body {
-  background: var(--bg);
-  color: var(--ink);
-}
+/* Base styles live in the base layer, so classes like bg-transparent can still override them */
+@layer base {
+  body {
+    background: var(--bg);
+    color: var(--ink);
+  }
 
-/* Form fields and selects pick up the theme too */
-input,
-select,
-textarea {
-  background-color: var(--surface);
-  color: var(--ink);
+  /* Form fields and selects pick up the theme too */
+  input,
+  select,
+  textarea {
+    background-color: var(--surface);
+    color: var(--ink);
+  }
 }

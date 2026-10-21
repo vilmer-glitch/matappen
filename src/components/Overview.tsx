@@ -34,7 +34,7 @@ export function Overview({ section, showUndo, openRecipe, openItem }: Props) {
   }
 
   return (
-    <main className="mx-auto grid max-w-[1500px] grid-cols-1 gap-5 p-4 lg:grid-cols-3 lg:p-6">
+    <main className="mx-auto grid max-w-2xl grid-cols-1 gap-5 p-4 lg:max-w-[1500px] lg:grid-cols-3 lg:p-6">
       <Column title="Lager" icon={Package} visible={section === 'pantry'}>
         <Pantry store={store} showUndo={showUndo} openItem={openItem} />
       </Column>
