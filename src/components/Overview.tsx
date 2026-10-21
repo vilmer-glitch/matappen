@@ -5,6 +5,7 @@ import { useItems } from '../hooks/useItems'
 import { usePlannedMeals } from '../hooks/usePlannedMeals'
 import { useRecipes } from '../hooks/useRecipes'
 import { useShoppingList } from '../hooks/useShoppingList'
+import { copyAppRecipe, withAppRecipes } from '../lib/appRecipes'
 import { CanCook } from './CanCook'
 import { Pantry } from './pantry/Pantry'
 import { ShoppingList } from './ShoppingList'
@@ -20,17 +21,23 @@ type Props = {
 export function Overview({ section, showUndo, openRecipe, openItem }: Props) {
   // Shared by all three columns, so a change in one shows up in the others at once
   const store = useItems()
-  const { recipes, loading } = useRecipes()
+  const { recipes: personal, loading, saveRecipe } = useRecipes()
   const planned = usePlannedMeals()
   const list = useShoppingList()
 
+  // Your own recipes plus the app's, and the items including stand-ins for what you don't have yet
+  const { recipes, items: allItems } = withAppRecipes(personal, store.items)
   const plannedIds = new Set(planned.meals.filter((m) => !m.cooked_at).map((m) => m.recipe_id))
 
+  // Planning one of the app's recipes saves a copy among your own first
   async function plan(recipeId: string) {
     const recipe = recipes.find((r) => r.id === recipeId)
     if (!recipe) return
-    const meal = await planned.addMeal(recipe.id, recipe.servings)
-    if (meal) showUndo(`${recipe.name} lades till`, () => planned.removeMeals([meal.id]))
+    const own = recipe.isApp ? await copyAppRecipe(recipe, allItems, store.addItem, (d) => saveRecipe(d)) : recipe
+    if (!own) return
+    const meal = await planned.addMeal(own.id, own.servings)
+    const copied = recipe.isApp ? ' och sparades bland dina recept' : ''
+    if (meal) showUndo(`${recipe.name} lades till${copied}`, () => planned.removeMeals([meal.id]))
   }
 
   return (
@@ -40,12 +47,12 @@ export function Overview({ section, showUndo, openRecipe, openItem }: Props) {
       </Column>
       <div className={`space-y-5 ${section === 'week' ? '' : 'hidden lg:block'}`}>
         <Column title="Veckans rätter" icon={CalendarDays} visible>
-          <WeeklyMeals recipes={recipes} store={store} planned={planned} showUndo={showUndo} openRecipe={openRecipe} />
+          <WeeklyMeals recipes={recipes} store={store} planned={planned} showUndo={showUndo} openRecipe={openRecipe} onAdd={plan} />
         </Column>
         <Column title="Vad kan jag laga?" icon={ChefHat} visible>
           <CanCook
             recipes={recipes}
-            items={store.items}
+            items={allItems}
             loading={loading || store.loading}
             openRecipe={openRecipe}
             plannedIds={plannedIds}
@@ -54,7 +61,7 @@ export function Overview({ section, showUndo, openRecipe, openItem }: Props) {
         </Column>
       </div>
       <Column title="Inköpslista" icon={ShoppingBasket} visible={section === 'list'}>
-        <ShoppingList recipes={recipes} store={store} planned={planned} list={list} showUndo={showUndo} />
+        <ShoppingList recipes={personal} store={store} planned={planned} list={list} showUndo={showUndo} />
       </Column>
     </main>
   )

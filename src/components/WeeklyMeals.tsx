@@ -12,21 +12,20 @@ type Props = {
   planned: PlannedMealsStore
   showUndo: (message: string, undo: () => void) => void
   openRecipe: (id: string) => void
+  // Adds a recipe to the plan (copies the app's recipes to your own first)
+  onAdd: (recipeId: string) => void
 }
 
 // The dishes picked for the coming period
-export function WeeklyMeals({ recipes, store, planned, showUndo, openRecipe }: Props) {
+export function WeeklyMeals({ recipes, store, planned, showUndo, openRecipe, onAdd }: Props) {
   const recipesById = new Map(recipes.map((r) => [r.id, r]))
   const itemsById = new Map(store.items.map((item) => [item.id, item]))
   const meals = planned.meals.filter((m) => recipesById.has(m.recipe_id))
   const toCook = meals.filter((m) => !m.cooked_at)
   const cooked = meals.filter((m) => m.cooked_at)
 
-  async function add(recipeId: string) {
-    const recipe = recipesById.get(recipeId)
-    if (!recipe) return
-    const meal = await planned.addMeal(recipe.id, recipe.servings)
-    if (meal) showUndo(`${recipe.name} lades till`, () => planned.removeMeals([meal.id]))
+  function add(recipeId: string) {
+    if (recipeId) onAdd(recipeId)
   }
 
   function remove(meal: PlannedMeal, name: string) {

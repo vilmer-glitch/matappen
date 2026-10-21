@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { ChefHat, CircleCheck, ExternalLink, Minus, Pencil, Plus, StickyNote, Trash2, TriangleAlert, X } from 'lucide-react'
+import { ChefHat, CircleCheck, Clock, ExternalLink, Minus, Pencil, Plus, StickyNote, Trash2, TriangleAlert, X } from 'lucide-react'
 import { formatAmount, recipeUnitLabel } from '../../lib/recipeUnits'
 import { checkRecipe, portionsText } from '../../lib/availability'
 import { unitLabel } from '../../lib/constants'
 import type { Item, Recipe } from '../../types'
+import { AppBadge } from '../AppBadge'
 
 type Props = {
   recipe: Recipe
@@ -32,16 +33,30 @@ export function RecipeView({ recipe, itemsById, onEdit, onDelete, onCooked, repo
   return (
     <article className="space-y-8">
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <h2 className="font-display text-3xl font-semibold leading-tight text-ink">{recipe.name}</h2>
+        <div>
+          <h2 className="font-display text-3xl font-semibold leading-tight text-ink">{recipe.name}</h2>
+          <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
+            {recipe.isApp && <AppBadge large />}
+            {recipe.time && (
+              <span className="flex items-center gap-1">
+                <Clock size={14} />
+                {recipe.time}
+              </span>
+            )}
+            {recipe.source && <span>Källa: {recipe.source.name}</span>}
+            {!recipe.isApp && recipe.app_key && <span>Din version av ett av appens recept</span>}
+          </p>
+        </div>
         <div className="flex gap-1">
           <button
             onClick={onEdit}
             className="flex items-center gap-1.5 rounded-full border border-line px-3.5 py-2 text-sm font-semibold text-muted hover:bg-surface-2 hover:text-ink"
           >
             <Pencil size={15} />
-            Redigera
+            {recipe.isApp ? 'Gör till min' : 'Redigera'}
           </button>
           <button
+            hidden={recipe.isApp}
             onClick={onDelete}
             title="Ta bort rätten"
             className="rounded-full p-2.5 text-faint hover:bg-danger-soft hover:text-danger"

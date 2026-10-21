@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase'
 import type { Recipe } from '../types'
 
 const COLUMNS =
-  'id, name, servings, instructions, link, note, ingredients:recipe_ingredients(item_id, quantity, unit, position)'
+  'id, name, servings, instructions, link, note, app_key, ingredients:recipe_ingredients(item_id, quantity, unit, position)'
 
 type Row = Omit<Recipe, 'ingredients'> & { ingredients: (Recipe['ingredients'][number] & { position: number })[] }
 
@@ -45,7 +45,9 @@ export function useRecipes() {
 
   // Creates a new recipe, or updates it when an id is given. Returns the saved recipe.
   const saveRecipe = useCallback(async (draft: RecipeDraft, id?: string) => {
-    const { ingredients, ...fields } = draft
+    // Only the columns that exist in the database (not the app-recipe display fields)
+    const { ingredients, name, servings, instructions, link, note, app_key } = draft
+    const fields = { name, servings, instructions, link, note, ...(app_key !== undefined ? { app_key } : {}) }
     const query = id
       ? supabase.from('recipes').update(fields).eq('id', id)
       : supabase.from('recipes').insert(fields)
@@ -57,8 +59,10 @@ export function useRecipes() {
     const ingredientError = await saveIngredients(data.id, ingredients)
     if (ingredientError) setError('Rätten sparades, men inte alla ingredienser.')
 
-    const saved: Recipe = { ...draft, id: data.id }
-    setRecipes((prev) => (id ? prev.map((r) => (r.id === id ? saved : r)) : [...prev, saved]))
+    const saved: Recipe = { ...draft, id: data.id, isApp: false, app_key: app_key ?? null }
+    setRecipes((prev) =>
+      id ? prev.map((r) => (r.id === id ? { ...saved, app_key: app_key ?? r.app_key } : r)) : [...prev, saved],
+    )
     return saved
   }, [])
 
@@ -70,7 +74,7 @@ export function useRecipes() {
 
   // Puts a removed recipe back with the same id, including its ingredients
   const restoreRecipe = useCallback(async (recipe: Recipe) => {
-    const { ingredients, ...fields } = recipe
+    const { ingredients, isApp: _isApp, source: _source, time: _time, ...fields } = recipe
     setRecipes((prev) => [...prev, recipe])
     const { error } = await supabase.from('recipes').insert(fields)
     if (error || (await saveIngredients(recipe.id, ingredients))) setError('Kunde inte ångra.')

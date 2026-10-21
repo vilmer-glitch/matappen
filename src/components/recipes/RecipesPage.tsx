@@ -5,9 +5,11 @@ import { useRecipes, type RecipeDraft } from '../../hooks/useRecipes'
 import { usePlannedMeals } from '../../hooks/usePlannedMeals'
 import { statusFor } from '../../lib/constants'
 import { planCooking } from '../../lib/cook'
+import { copyAppRecipe, withAppRecipes } from '../../lib/appRecipes'
 import { checkRecipe, portionsText, type Availability } from '../../lib/availability'
 import type { Recipe } from '../../types'
 import type { NewItem } from '../pantry/AddItemSearch'
+import { AppBadge } from '../AppBadge'
 import { RecipeForm } from './RecipeForm'
 import { RecipeView, type CookReport } from './RecipeView'
 
@@ -20,19 +22,24 @@ type Props = {
 export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
   const items = useItems()
   const planned = usePlannedMeals()
-  const { recipes, loading, error, clearError, saveRecipe, removeRecipe, restoreRecipe } = useRecipes()
+  const { recipes: personal, loading, error, clearError, saveRecipe, removeRecipe, restoreRecipe } = useRecipes()
   const [mode, setMode] = useState<'view' | 'edit' | 'new'>('view')
   const [search, setSearch] = useState('')
   const [report, setReport] = useState<CookReport | null>(null)
   const [filter, setFilter] = useState<'all' | 'ready' | 'almost'>('all')
+  const [origin, setOrigin] = useState<'all' | 'mine' | 'app'>('all')
 
-  const itemsById = new Map(items.items.map((item) => [item.id, item]))
+  // Your own recipes plus the app's; items include stand-ins for ingredients you don't have yet
+  const { recipes, items: allItems } = withAppRecipes(personal, items.items)
+  const itemsById = new Map(allItems.map((item) => [item.id, item]))
   const availability = new Map(recipes.map((r) => [r.id, checkRecipe(r, itemsById)]))
   const sorted = [...recipes].sort((a, b) => a.name.localeCompare(b.name, 'sv'))
   const shown = sorted.filter((r) => {
     const status = availability.get(r.id)
     if (filter === 'ready' && !status?.canCook) return false
     if (filter === 'almost' && !status?.almost) return false
+    if (origin === 'mine' && r.isApp) return false
+    if (origin === 'app' && !r.isApp) return false
     return r.name.toLowerCase().includes(search.trim().toLowerCase())
   })
   // Show the first recipe until one is picked
@@ -57,6 +64,18 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
       onSelect(saved.id)
       setMode('view')
     }
+  }
+
+  // Editing one of the app's recipes makes it your own: a copy is saved and opened for editing
+  async function edit(recipe: Recipe) {
+    if (!recipe.isApp) {
+      setMode('edit')
+      return
+    }
+    const own = await copyAppRecipe(recipe, allItems, items.addItem, (d) => saveRecipe(d))
+    if (!own) return
+    onSelect(own.id)
+    setMode('edit')
   }
 
   function remove(recipe: Recipe) {
@@ -137,6 +156,19 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
             </button>
           ))}
         </div>
+        <div className="mb-3 flex gap-1 text-xs font-semibold">
+          {origins.map((o) => (
+            <button
+              key={o.value}
+              onClick={() => setOrigin(o.value)}
+              className={`rounded-full px-3 py-1.5 ${
+                origin === o.value ? 'bg-ink text-bg' : 'bg-surface-2 text-muted hover:bg-line'
+              }`}
+            >
+              {o.label}
+            </button>
+          ))}
+        </div>
         {loading ? (
           <p className="text-sm text-faint">Hämtar recept…</p>
         ) : shown.length === 0 ? (
@@ -156,7 +188,10 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
                       : 'text-ink hover:bg-surface-2'
                   }`}
                 >
-                  <span className="truncate">{recipe.name}</span>
+                  <span className="min-w-0 truncate">
+                    {recipe.name}
+                    {recipe.isApp && <AppBadge />}
+                  </span>
                   <Badge status={availability.get(recipe.id)} />
                 </button>
               </li>
@@ -203,7 +238,7 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
             key={selected.id}
             recipe={selected}
             itemsById={itemsById}
-            onEdit={() => setMode('edit')}
+            onEdit={() => edit(selected)}
             onDelete={() => remove(selected)}
             onCooked={(servings) => cooked(selected, servings)}
             report={report?.recipeId === selected.id ? report : null}
@@ -227,6 +262,12 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
     </main>
   )
 }
+
+const origins = [
+  { value: 'all', label: 'Alla' },
+  { value: 'mine', label: 'Mina' },
+  { value: 'app', label: 'Från appen' },
+] as const
 
 const filters = [
   { value: 'all', label: 'Alla' },

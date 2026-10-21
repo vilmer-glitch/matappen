@@ -27,6 +27,12 @@ export type Recipe = {
   link: string | null
   note: string | null
   ingredients: RecipeIngredient[]
+  // For a personal copy: which of the app's recipes it is based on
+  app_key?: string | null
+  // Only set on the app's own recipes (not saved in the database)
+  isApp?: boolean
+  source?: { name: string; url: string }
+  time?: string
 }
 
 export type PlannedMeal = {

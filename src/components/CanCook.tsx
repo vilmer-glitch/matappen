@@ -3,6 +3,7 @@ import { checkRecipe, portionsText, type Missing } from '../lib/availability'
 import { unitLabel } from '../lib/constants'
 import { formatAmount } from '../lib/recipeUnits'
 import type { Item, Recipe } from '../types'
+import { AppBadge } from './AppBadge'
 
 type Props = {
   recipes: Recipe[]
@@ -40,7 +41,10 @@ export function CanCook({ recipes, items, loading, openRecipe, plannedIds, onPla
                   onClick={() => openRecipe(recipe.id)}
                   className="flex min-h-11 min-w-0 flex-1 items-center gap-2 rounded-xl px-3 py-1.5 text-left hover:bg-surface-2"
                 >
-                  <span className="flex-1 font-semibold text-ink">{recipe.name}</span>
+                  <span className="flex-1 font-semibold text-ink">
+                    {recipe.name}
+                    {recipe.isApp && <AppBadge />}
+                  </span>
                   {maxServings !== null && (
                     <span className="rounded-full bg-olive-soft px-2 py-0.5 text-xs font-semibold text-olive" title="Så många portioner räcker det du har hemma till">
                       {portionsText(maxServings)}
@@ -67,7 +71,10 @@ export function CanCook({ recipes, items, loading, openRecipe, plannedIds, onPla
                   className="flex min-h-11 min-w-0 flex-1 items-start gap-2 rounded-xl px-3 py-1.5 text-left hover:bg-surface-2"
                 >
                   <span>
-                    <span className="block font-semibold text-ink">{recipe.name}</span>
+                    <span className="block font-semibold text-ink">
+                      {recipe.name}
+                      {recipe.isApp && <AppBadge />}
+                    </span>
                     <span className="block text-xs text-muted">Saknar {missing.map(describeMissing).join(', ')}</span>
                   </span>
                 </button>
