@@ -71,6 +71,10 @@ En webbapp som håller koll på matvarorna hemma, visar vad jag kan laga och skr
   - Klart: publicerad på https://matappen-gamma.vercel.app (Vercel bygger om automatiskt vid varje push till main).
   - Supabase → Authentication → URL Configuration: Site URL är Vercel-adressen; Redirect URLs har både Vercel-adressen och http://localhost:5173.
 
+## Drift
+- Supabase gratisplan pausar projektet efter ca 7 dagar utan aktivitet. `.github/workflows/keep-supabase-awake.yml` gör en läsning måndag och torsdag så att det inte händer. Den behöver GitHub-hemligheterna `SUPABASE_URL` och `SUPABASE_PUBLISHABLE_KEY`.
+- GitHub stänger av schemalagda körningar efter 60 dagar utan ändringar i projektet. Då kommer ett mejl; slå på den igen under Actions.
+
 ## Senare, inte i version 1
 - AI-förslag på rätter. Först bara en knapp som kopierar lagret, så att jag kan fråga Claude i chatten.
 - Mobilanpassning

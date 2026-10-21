@@ -1,0 +1,24 @@
+# Supabase pauses free projects after about a week without activity.
+# This makes a small read-only request twice a week so the database stays awake.
+# It doesn't log in, so Row Level Security returns no data – the request itself is enough.
+name: Keep Supabase awake
+
+on:
+  schedule:
+    - cron: '0 6 * * 1,4' # Mondays and Thursdays at 06:00 UTC
+  workflow_dispatch: # lets you run it by hand from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping the database
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_PUBLISHABLE_KEY }}
+        run: |
+          status=$(curl -s -o /dev/null -w "%{http_code}" \
+            "$SUPABASE_URL/rest/v1/items?select=id&limit=1" \
+            -H "apikey: $SUPABASE_PUBLISHABLE_KEY")
+          echo "Supabase answered with HTTP $status"
+          test "$status" = "200"

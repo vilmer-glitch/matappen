@@ -16,7 +16,7 @@ A web app that keeps track of the groceries at home, shows which dishes I can co
 - **I cooked this** – pick how many servings you cooked and the ingredients are subtracted from the pantry (staples never are), with a report and undo
 
 ## Tech
-React, Vite, TypeScript, Tailwind CSS and Supabase (database + email/password login). Hosted on Vercel; every push to `main` is deployed automatically.
+React, Vite, TypeScript, Tailwind CSS and Supabase (database + email/password login). Hosted on Vercel; every push to `main` is deployed automatically. A GitHub Actions workflow pings Supabase twice a week so the free project isn't paused (needs the repository secrets `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY`).
 
 ## Running it locally
 1. Install [Node.js](https://nodejs.org) (version 20 or newer).
