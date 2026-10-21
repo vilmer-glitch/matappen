@@ -89,10 +89,10 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
 
   return (
     <main className="grid grid-cols-1 gap-4 p-6 lg:grid-cols-[18rem_1fr]">
-      <aside className="rounded-xl bg-white p-4 shadow lg:self-start">
+      <aside className="rounded-xl bg-surface p-4 shadow lg:self-start">
         <button
           onClick={() => setMode('new')}
-          className="mb-3 w-full rounded-md bg-emerald-600 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+          className="mb-3 w-full rounded-md bg-accent py-2 text-sm font-medium text-on-accent hover:bg-accent-strong"
         >
           + Ny rätt
         </button>
@@ -100,7 +100,7 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Sök rätt…"
-          className="mb-3 w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none"
+          className="mb-3 w-full rounded-md border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
         />
         <div className="mb-3 flex gap-1 text-xs">
           {filters.map((f) => (
@@ -108,7 +108,7 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
               key={f.value}
               onClick={() => setFilter(f.value)}
               className={`rounded-full px-2.5 py-1 ${
-                filter === f.value ? 'bg-stone-800 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                filter === f.value ? 'bg-ink text-bg' : 'bg-surface-2 text-muted hover:bg-line'
               }`}
             >
               {f.label}
@@ -116,9 +116,9 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
           ))}
         </div>
         {loading ? (
-          <p className="text-sm text-stone-400">Hämtar recept…</p>
+          <p className="text-sm text-faint">Hämtar recept…</p>
         ) : shown.length === 0 ? (
-          <p className="text-sm text-stone-400">{recipes.length ? 'Ingen rätt matchar.' : 'Inga rätter än.'}</p>
+          <p className="text-sm text-faint">{recipes.length ? 'Ingen rätt matchar.' : 'Inga rätter än.'}</p>
         ) : (
           <ul className="space-y-0.5">
             {shown.map((recipe) => (
@@ -130,8 +130,8 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
                   }}
                   className={`flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm ${
                     mode !== 'new' && selected?.id === recipe.id
-                      ? 'bg-emerald-50 font-medium text-emerald-800'
-                      : 'text-stone-700 hover:bg-stone-100'
+                      ? 'bg-accent-soft font-medium text-accent-strong'
+                      : 'text-ink hover:bg-surface-2'
                   }`}
                 >
                   <span className="truncate">{recipe.name}</span>
@@ -143,9 +143,9 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
         )}
       </aside>
 
-      <section className="rounded-xl bg-white p-6 shadow">
+      <section className="rounded-xl bg-surface p-6 shadow">
         {errorText && (
-          <p className="mb-4 flex justify-between rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+          <p className="mb-4 flex justify-between rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">
             {errorText}
             <button
               onClick={() => {
@@ -180,9 +180,9 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
           />
         ) : (
           !loading && (
-            <div className="py-16 text-center text-stone-400">
+            <div className="py-16 text-center text-faint">
               <p className="mb-2">Du har inga rätter än.</p>
-              <button onClick={() => setMode('new')} className="text-emerald-700 hover:underline">
+              <button onClick={() => setMode('new')} className="text-accent-strong hover:underline">
                 Lägg till din första rätt
               </button>
             </div>
@@ -204,14 +204,14 @@ function Badge({ status }: { status: Availability | undefined }) {
   if (!status) return null
   if (status.canCook) {
     return (
-      <span className="shrink-0 rounded-full bg-emerald-100 px-2 text-xs text-emerald-800">
+      <span className="shrink-0 rounded-full bg-olive-soft px-2 text-xs font-semibold text-olive">
         {status.maxServings === null ? 'Kan lagas' : `${status.maxServings} port`}
       </span>
     )
   }
   return (
     <span
-      className={`shrink-0 rounded-full px-2 text-xs ${status.almost ? 'bg-amber-100 text-amber-800' : 'bg-stone-100 text-stone-500'}`}
+      className={`shrink-0 rounded-full px-2 text-xs ${status.almost ? 'bg-warn-soft text-warn' : 'bg-surface-2 text-muted'}`}
     >
       Saknar {status.missing.length}
     </span>

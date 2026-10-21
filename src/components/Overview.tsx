@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react'
+import { CalendarDays, ChefHat, Package, ShoppingBasket, type LucideIcon } from 'lucide-react'
+import type { Page } from '../hooks/usePage'
 import { useItems } from '../hooks/useItems'
 import { usePlannedMeals } from '../hooks/usePlannedMeals'
 import { useRecipes } from '../hooks/useRecipes'
@@ -9,12 +11,13 @@ import { ShoppingList } from './ShoppingList'
 import { WeeklyMeals } from './WeeklyMeals'
 
 type Props = {
+  section: Page
   showUndo: (message: string, undo: () => void) => void
   openRecipe: (id: string) => void
   openItem: (id: string) => void
 }
 
-export function Overview({ showUndo, openRecipe, openItem }: Props) {
+export function Overview({ section, showUndo, openRecipe, openItem }: Props) {
   // Shared by all three columns, so a change in one shows up in the others at once
   const store = useItems()
   const { recipes, loading } = useRecipes()
@@ -31,33 +34,40 @@ export function Overview({ showUndo, openRecipe, openItem }: Props) {
   }
 
   return (
-    <main className="grid grid-cols-1 gap-4 p-6 lg:grid-cols-3">
-      <Column title="Lager">
+    <main className="mx-auto grid max-w-[1500px] grid-cols-1 gap-5 p-4 lg:grid-cols-3 lg:p-6">
+      <Column title="Lager" icon={Package} visible={section === 'pantry'}>
         <Pantry store={store} showUndo={showUndo} openItem={openItem} />
       </Column>
-      <Column title="Veckans rätter">
-        <WeeklyMeals recipes={recipes} store={store} planned={planned} showUndo={showUndo} openRecipe={openRecipe} />
-        <h3 className="mb-3 mt-8 border-t border-stone-200 pt-4 font-semibold text-stone-800">Vad kan jag laga?</h3>
-        <CanCook
-          recipes={recipes}
-          items={store.items}
-          loading={loading || store.loading}
-          openRecipe={openRecipe}
-          plannedIds={plannedIds}
-          onPlan={plan}
-        />
-      </Column>
-      <Column title="Inköpslista">
+      <div className={`space-y-5 ${section === 'week' ? '' : 'hidden lg:block'}`}>
+        <Column title="Veckans rätter" icon={CalendarDays} visible>
+          <WeeklyMeals recipes={recipes} store={store} planned={planned} showUndo={showUndo} openRecipe={openRecipe} />
+        </Column>
+        <Column title="Vad kan jag laga?" icon={ChefHat} visible>
+          <CanCook
+            recipes={recipes}
+            items={store.items}
+            loading={loading || store.loading}
+            openRecipe={openRecipe}
+            plannedIds={plannedIds}
+            onPlan={plan}
+          />
+        </Column>
+      </div>
+      <Column title="Inköpslista" icon={ShoppingBasket} visible={section === 'list'}>
         <ShoppingList recipes={recipes} store={store} planned={planned} list={list} showUndo={showUndo} />
       </Column>
     </main>
   )
 }
 
-function Column({ title, children }: { title: string; children: ReactNode }) {
+// A card with a title. On a phone only the column for the chosen tab is shown; on a computer all of them.
+function Column({ title, icon: Icon, visible, children }: { title: string; icon: LucideIcon; visible: boolean; children: ReactNode }) {
   return (
-    <section className="min-h-96 rounded-xl bg-white p-4 shadow">
-      <h2 className="mb-3 text-lg font-semibold text-stone-800">{title}</h2>
+    <section className={`rounded-2xl border border-line bg-surface p-5 shadow-sm lg:self-start ${visible ? '' : 'hidden lg:block'}`}>
+      <h2 className="mb-4 flex items-center gap-2 font-display text-xl font-semibold text-ink">
+        <Icon size={20} className="text-accent" />
+        {title}
+      </h2>
       {children}
     </section>
   )

@@ -43,15 +43,15 @@ export function ItemRow({ item, focused, onFocused, onQuantityChange, onRemove, 
       <button
         onClick={onOpen}
         title="Visa och ändra varan"
-        className={`min-w-0 flex-1 truncate text-left hover:underline ${isOut ? 'text-stone-400' : 'text-stone-800'}`}
+        className={`min-w-0 flex-1 truncate text-left hover:underline ${isOut ? 'text-faint' : 'text-ink'}`}
       >
         {item.name}
       </button>
 
-      {isOut && <span className="rounded bg-red-100 px-1.5 py-0.5 text-xs text-red-700">Slut</span>}
+      {isOut && <span className="rounded bg-danger-soft px-1.5 py-0.5 text-xs text-danger">Slut</span>}
 
       {!item.is_staple && (
-        <label className="flex items-center gap-1 text-sm text-stone-500">
+        <label className="flex items-center gap-1 text-sm text-muted">
           <input
             ref={input}
             inputMode="decimal"
@@ -66,7 +66,7 @@ export function ItemRow({ item, focused, onFocused, onQuantityChange, onRemove, 
               }
             }}
             placeholder="?"
-            className="w-16 rounded border border-transparent px-1.5 py-0.5 text-right text-stone-800 hover:border-stone-300 focus:border-emerald-600 focus:outline-none"
+            className="w-16 rounded border border-transparent px-1.5 py-0.5 text-right text-ink hover:border-line focus:border-accent focus:outline-none"
           />
           <span className="w-5">{unitLabel(item.unit)}</span>
         </label>
@@ -75,7 +75,7 @@ export function ItemRow({ item, focused, onFocused, onQuantityChange, onRemove, 
       <button
         onClick={onRemove}
         title="Ta bort"
-        className="px-1 text-stone-300 hover:text-red-600 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
+        className="px-1 text-faint hover:text-danger [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
       >
         ×
       </button>

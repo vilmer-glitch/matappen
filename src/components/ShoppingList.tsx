@@ -103,11 +103,11 @@ export function ShoppingList({ recipes, store, planned, list, showUndo }: Props)
     })
   }
 
-  if (list.loading || planned.loading) return <p className="text-sm text-stone-400">Hämtar inköpslistan…</p>
+  if (list.loading || planned.loading) return <p className="text-sm text-faint">Hämtar inköpslistan…</p>
 
   return (
     <div>
-      {list.error && <p className="mb-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{list.error}</p>}
+      {list.error && <p className="mb-3 rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">{list.error}</p>}
 
       <AddItemSearch
         items={store.items}
@@ -117,9 +117,9 @@ export function ShoppingList({ recipes, store, planned, list, showUndo }: Props)
         placeholder="Lägg till på listan…"
       />
 
-      {lines.length === 0 && <p className="mb-3 text-sm text-stone-400">Listan är tom.</p>}
+      {lines.length === 0 && <p className="mb-3 text-sm text-faint">Listan är tom.</p>}
 
-      <ul className="divide-y divide-stone-100">
+      <ul className="divide-y divide-line">
         {[...toBuy, ...done].map((line) => (
           <ShoppingLine
             key={line.item.id}
@@ -134,26 +134,26 @@ export function ShoppingList({ recipes, store, planned, list, showUndo }: Props)
       {done.length > 0 && (
         <button
           onClick={doneShopping}
-          className="mt-4 w-full rounded-md bg-emerald-600 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+          className="mt-4 w-full rounded-md bg-accent py-2 text-sm font-medium text-on-accent hover:bg-accent-strong"
         >
           Klar med handlingen ({done.length})
         </button>
       )}
 
       {suggestions.length > 0 && (
-        <section className="mt-4 border-t border-stone-200 pt-3">
+        <section className="mt-4 border-t border-line pt-3">
           <button
             onClick={() => setShowSuggestions(!showSuggestions)}
-            className="text-xs font-semibold uppercase tracking-wide text-stone-400 hover:text-stone-700"
+            className="text-xs font-semibold uppercase tracking-wide text-faint hover:text-ink"
           >
             {showSuggestions ? '▾' : '▸'} Slut hemma ({suggestions.length})
           </button>
           {showSuggestions && (
             <ul className="mt-1">
               {suggestions.map((item) => (
-                <li key={item.id} className="flex items-center justify-between py-1 text-sm text-stone-600">
+                <li key={item.id} className="flex items-center justify-between py-1 text-sm text-muted">
                   {item.name}
-                  <button onClick={() => addManual(item)} className="rounded-md px-2 text-emerald-700 hover:bg-emerald-50">
+                  <button onClick={() => addManual(item)} className="rounded-md px-2 text-accent-strong hover:bg-accent-soft">
                     + Lägg till
                   </button>
                 </li>
@@ -193,15 +193,15 @@ function ShoppingLine({ line, onToggle, onQuantity, onRemove }: LineProps) {
         type="checkbox"
         checked={line.checked}
         onChange={onToggle}
-        className="h-4 w-4 shrink-0 accent-emerald-600"
+        className="h-4 w-4 shrink-0 accent-[var(--accent)]"
         title="Bocka av"
       />
-      <span className={`min-w-0 flex-1 ${line.checked ? 'text-stone-400 line-through' : 'text-stone-800'}`}>
+      <span className={`min-w-0 flex-1 ${line.checked ? 'text-faint line-through' : 'text-ink'}`}>
         <span className="block truncate">{line.item.name}</span>
-        {line.recipes.length > 0 && <span className="block truncate text-xs text-stone-400">{line.recipes.join(', ')}</span>}
+        {line.recipes.length > 0 && <span className="block truncate text-xs text-faint">{line.recipes.join(', ')}</span>}
       </span>
       {line.item.unit && (
-        <label className="flex items-center gap-1 text-sm text-stone-500">
+        <label className="flex items-center gap-1 text-sm text-muted">
           <input
             inputMode="decimal"
             value={value}
@@ -210,7 +210,7 @@ function ShoppingLine({ line, onToggle, onQuantity, onRemove }: LineProps) {
             onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
             placeholder="?"
             title="Ändra till det du köpte"
-            className="w-16 rounded border border-transparent px-1.5 py-0.5 text-right text-stone-800 hover:border-stone-300 focus:border-emerald-600 focus:outline-none"
+            className="w-16 rounded border border-transparent px-1.5 py-0.5 text-right text-ink hover:border-line focus:border-accent focus:outline-none"
           />
           <span className="w-5">{unitLabel(line.item.unit)}</span>
         </label>
@@ -219,7 +219,7 @@ function ShoppingLine({ line, onToggle, onQuantity, onRemove }: LineProps) {
         <button
           onClick={onRemove}
           title="Ta bort från listan"
-          className="px-1 text-stone-300 hover:text-red-600 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
+          className="px-1 text-faint hover:text-danger [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
         >
           ×
         </button>

@@ -4,3 +4,6 @@ dist
 .env.local
 .DS_Store
 *.log
+
+# Personal notes and instructions for Claude, kept only on this computer
+CLAUDE.md

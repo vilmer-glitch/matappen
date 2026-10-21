@@ -46,7 +46,7 @@ export function Pantry({ store, showUndo, openItem }: Props) {
     if (created) showUndo(`${name} lades till`, () => removeItem(created))
   }
 
-  if (loading) return <p className="text-sm text-stone-400">Hämtar lagret…</p>
+  if (loading) return <p className="text-sm text-faint">Hämtar lagret…</p>
 
   const byName = (a: Item, b: Item) => a.name.localeCompare(b.name, 'sv')
   const fridge = items.filter((item) => !item.is_staple && item.category === 'fridge').sort(byName)
@@ -55,7 +55,7 @@ export function Pantry({ store, showUndo, openItem }: Props) {
 
   function rows(list: Item[]) {
     return (
-      <ul className="divide-y divide-stone-100">
+      <ul className="divide-y divide-line">
         {list.map((item) => (
           <ItemRow
             key={item.id}
@@ -76,7 +76,7 @@ export function Pantry({ store, showUndo, openItem }: Props) {
       <AddItemSearch items={items} onPick={pick} onCreate={create} />
 
       {error && (
-        <p className="mb-3 flex justify-between rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+        <p className="mb-3 flex justify-between rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">
           {error}
           <button onClick={clearError}>×</button>
         </p>
@@ -89,16 +89,16 @@ export function Pantry({ store, showUndo, openItem }: Props) {
         {pantry.length ? rows(pantry) : <Empty />}
       </Group>
 
-      <section className="border-t border-stone-200 pt-3">
+      <section className="border-t border-line pt-3">
         <button
           onClick={() => setShowStaples(!showStaples)}
-          className="text-xs font-semibold uppercase tracking-wide text-stone-400 hover:text-stone-700"
+          className="text-xs font-semibold uppercase tracking-wide text-faint hover:text-ink"
         >
           {showStaples ? '▾' : '▸'} Basvaror ({staples.length})
         </button>
         {showStaples && (
           <>
-            <p className="mt-1 text-xs text-stone-400">Finns alltid hemma och dras aldrig av.</p>
+            <p className="mt-1 text-xs text-faint">Finns alltid hemma och dras aldrig av.</p>
             {rows(staples)}
           </>
         )}
@@ -110,7 +110,7 @@ export function Pantry({ store, showUndo, openItem }: Props) {
 function Group({ title, count, children }: { title: string; count: number; children: React.ReactNode }) {
   return (
     <section className="mb-4">
-      <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-stone-400">
+      <h3 className="mb-1 text-xs font-semibold uppercase tracking-wide text-faint">
         {title} ({count})
       </h3>
       {children}
@@ -119,5 +119,5 @@ function Group({ title, count, children }: { title: string; count: number; child
 }
 
 function Empty() {
-  return <p className="py-1.5 text-sm text-stone-400">Inga varor än.</p>
+  return <p className="py-1.5 text-sm text-faint">Inga varor än.</p>
 }

@@ -32,20 +32,20 @@ export function NewPasswordPage({ onDone }: { onDone: () => void }) {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-stone-100 p-4">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4 rounded-xl bg-white p-8 shadow">
-        <h1 className="text-2xl font-semibold text-stone-800">Nytt lösenord</h1>
-        <p className="text-stone-500">Välj ett nytt lösenord för Matappen.</p>
+    <main className="flex min-h-screen items-center justify-center p-4">
+      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4 rounded-2xl border border-line bg-surface p-8 shadow-sm">
+        <h1 className="font-display text-3xl font-semibold text-ink">Nytt lösenord</h1>
+        <p className="text-muted">Välj ett nytt lösenord för Matappen.</p>
 
         <PasswordField label="Nytt lösenord" value={password} onChange={setPassword} autoFocus />
         <PasswordField label="Upprepa lösenordet" value={repeat} onChange={setRepeat} />
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md bg-emerald-600 py-2 font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="w-full rounded-md bg-accent py-2 font-medium text-on-accent hover:bg-accent-strong disabled:opacity-50"
         >
           {loading ? 'Sparar…' : 'Spara lösenord'}
         </button>
@@ -57,7 +57,7 @@ export function NewPasswordPage({ onDone }: { onDone: () => void }) {
 function PasswordField(props: { label: string; value: string; onChange: (v: string) => void; autoFocus?: boolean }) {
   return (
     <label className="block">
-      <span className="text-sm text-stone-600">{props.label}</span>
+      <span className="text-sm text-muted">{props.label}</span>
       <input
         type="password"
         required
@@ -66,7 +66,7 @@ function PasswordField(props: { label: string; value: string; onChange: (v: stri
         autoFocus={props.autoFocus}
         value={props.value}
         onChange={(e) => props.onChange(e.target.value)}
-        className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2 focus:border-emerald-600 focus:outline-none"
+        className="mt-1 w-full rounded-md border border-line px-3 py-2 focus:border-accent focus:outline-none"
       />
     </label>
   )

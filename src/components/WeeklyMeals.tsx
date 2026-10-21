@@ -49,28 +49,28 @@ export function WeeklyMeals({ recipes, store, planned, showUndo, openRecipe }: P
     showUndo(`${cooked.length} lagade rätter rensades`, () => planned.restoreMeals(cooked))
   }
 
-  if (planned.loading) return <p className="text-sm text-stone-400">Hämtar veckans rätter…</p>
+  if (planned.loading) return <p className="text-sm text-faint">Hämtar veckans rätter…</p>
 
   return (
     <div>
-      {planned.error && <p className="mb-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{planned.error}</p>}
+      {planned.error && <p className="mb-3 rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">{planned.error}</p>}
 
       {toCook.length === 0 && cooked.length === 0 && (
-        <p className="mb-3 text-sm text-stone-400">Inga rätter valda. Välj bland förslagen nedan eller i listan.</p>
+        <p className="mb-3 text-sm text-faint">Inga rätter valda. Välj bland förslagen nedan eller i listan.</p>
       )}
 
-      <ul className="divide-y divide-stone-100">
+      <ul className="divide-y divide-line">
         {toCook.map((meal) => {
           const recipe = recipesById.get(meal.recipe_id)!
           return (
             <li key={meal.id} className="group flex items-center gap-2 py-1.5">
-              <button onClick={() => openRecipe(recipe.id)} className="min-w-0 flex-1 truncate text-left text-stone-800 hover:underline">
+              <button onClick={() => openRecipe(recipe.id)} className="min-w-0 flex-1 truncate text-left text-ink hover:underline">
                 {recipe.name}
               </button>
-              <div className="flex items-center rounded-md border border-stone-200 text-xs text-stone-600">
+              <div className="flex items-center rounded-md border border-line text-xs text-muted">
                 <button
                   onClick={() => planned.updateMeal(meal.id, { servings: Math.max(1, meal.servings - 1) })}
-                  className="px-1.5 py-0.5 hover:bg-stone-100"
+                  className="px-1.5 py-0.5 hover:bg-surface-2"
                   title="Färre portioner"
                 >
                   −
@@ -78,7 +78,7 @@ export function WeeklyMeals({ recipes, store, planned, showUndo, openRecipe }: P
                 <span className="w-12 text-center">{meal.servings} port</span>
                 <button
                   onClick={() => planned.updateMeal(meal.id, { servings: meal.servings + 1 })}
-                  className="px-1.5 py-0.5 hover:bg-stone-100"
+                  className="px-1.5 py-0.5 hover:bg-surface-2"
                   title="Fler portioner"
                 >
                   +
@@ -87,14 +87,14 @@ export function WeeklyMeals({ recipes, store, planned, showUndo, openRecipe }: P
               <button
                 onClick={() => markCooked(meal, recipe)}
                 title={`Jag lagade ${portionsText(meal.servings)} – drar av från lagret`}
-                className="rounded-md border border-emerald-600 px-2 py-0.5 text-xs text-emerald-700 hover:bg-emerald-50"
+                className="rounded-md border border-accent px-2 py-0.5 text-xs text-accent-strong hover:bg-accent-soft"
               >
                 Lagad
               </button>
               <button
                 onClick={() => remove(meal, recipe.name)}
                 title="Ta bort"
-                className="px-1 text-stone-300 hover:text-red-600 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
+                className="px-1 text-faint hover:text-danger [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
               >
                 ×
               </button>
@@ -102,7 +102,7 @@ export function WeeklyMeals({ recipes, store, planned, showUndo, openRecipe }: P
           )
         })}
         {cooked.map((meal) => (
-          <li key={meal.id} className="flex items-center gap-2 py-1.5 text-stone-400">
+          <li key={meal.id} className="flex items-center gap-2 py-1.5 text-faint">
             <span className="flex-1 truncate line-through">{recipesById.get(meal.recipe_id)!.name}</span>
             <span className="text-xs">{meal.servings} port · lagad</span>
           </li>
@@ -113,7 +113,7 @@ export function WeeklyMeals({ recipes, store, planned, showUndo, openRecipe }: P
         <select
           value=""
           onChange={(e) => add(e.target.value)}
-          className="flex-1 rounded-md border border-stone-300 px-2 py-1.5 text-sm text-stone-600"
+          className="flex-1 rounded-md border border-line px-2 py-1.5 text-sm text-muted"
         >
           <option value="">+ Lägg till rätt…</option>
           {[...recipes]
@@ -125,7 +125,7 @@ export function WeeklyMeals({ recipes, store, planned, showUndo, openRecipe }: P
             ))}
         </select>
         {cooked.length > 0 && (
-          <button onClick={clearCooked} className="text-xs text-stone-400 hover:text-stone-700">
+          <button onClick={clearCooked} className="text-xs text-faint hover:text-ink">
             Rensa lagade
           </button>
         )}

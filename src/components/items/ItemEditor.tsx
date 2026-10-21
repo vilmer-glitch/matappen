@@ -33,17 +33,17 @@ export function ItemEditor({ item, items, recipes, onSave, onDelete, onClose, op
     <div className="space-y-5">
       <div className="flex items-start justify-between gap-2">
         <div>
-          <h2 className="text-xl font-semibold text-stone-800">{item.name}</h2>
-          <p className="text-xs text-stone-400">{item.is_default ? 'Fanns från början i appen' : 'Tillagd av dig'}</p>
+          <h2 className="text-xl font-semibold text-ink">{item.name}</h2>
+          <p className="text-xs text-faint">{item.is_default ? 'Fanns från början i appen' : 'Tillagd av dig'}</p>
         </div>
-        <button onClick={onClose} className="px-1 text-xl text-stone-400 hover:text-stone-700" title="Stäng">
+        <button onClick={onClose} className="px-1 text-xl text-faint hover:text-ink" title="Stäng">
           ×
         </button>
       </div>
 
       <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm">
-        <dt className="text-stone-500">Hemma</dt>
-        <dd className="text-stone-800">
+        <dt className="text-muted">Hemma</dt>
+        <dd className="text-ink">
           {item.is_staple
             ? 'Alltid hemma (basvara)'
             : item.quantity === null
@@ -52,21 +52,21 @@ export function ItemEditor({ item, items, recipes, onSave, onDelete, onClose, op
                 ? 'Slut'
                 : `${formatAmount(item.quantity)} ${unitLabel(item.unit)}`}
         </dd>
-        <dt className="text-stone-500">Enheter i recept</dt>
-        <dd className="text-stone-800">
+        <dt className="text-muted">Enheter i recept</dt>
+        <dd className="text-ink">
           {recipeUnitsFor(item.is_staple ? null : item.unit)
             .map((u) => u.label)
             .join(', ')}
         </dd>
-        <dt className="text-stone-500">Används i</dt>
+        <dt className="text-muted">Används i</dt>
         <dd>
           {used.length === 0 ? (
-            <span className="text-stone-400">Inga recept</span>
+            <span className="text-faint">Inga recept</span>
           ) : (
             used.map((r, i) => (
               <span key={r.id}>
                 {i > 0 && ', '}
-                <button onClick={() => openRecipe(r.id)} className="text-emerald-700 hover:underline">
+                <button onClick={() => openRecipe(r.id)} className="text-accent-strong hover:underline">
                   {r.name}
                 </button>
               </span>
@@ -75,31 +75,31 @@ export function ItemEditor({ item, items, recipes, onSave, onDelete, onClose, op
         </dd>
       </dl>
 
-      <div className="space-y-3 border-t border-stone-200 pt-4">
+      <div className="space-y-3 border-t border-line pt-4">
         <label className="block">
-          <span className="mb-1 block text-sm font-medium text-stone-600">Namn</span>
+          <span className="mb-1 block text-sm font-medium text-muted">Namn</span>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none"
+            className="w-full rounded-md border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
           />
         </label>
-        {duplicate && <p className="text-sm text-red-600">Det finns redan en vara som heter så.</p>}
+        {duplicate && <p className="text-sm text-danger">Det finns redan en vara som heter så.</p>}
 
         <div>
-          <span className="mb-1 block text-sm font-medium text-stone-600">Grupp</span>
+          <span className="mb-1 block text-sm font-medium text-muted">Grupp</span>
           <Choice options={GROUPS} value={group} onChange={setGroup} />
         </div>
 
         {group !== 'staple' && (
           <div>
-            <span className="mb-1 block text-sm font-medium text-stone-600">Enhet i lagret</span>
+            <span className="mb-1 block text-sm font-medium text-muted">Enhet i lagret</span>
             <Choice options={UNITS} value={unit} onChange={setUnit} />
           </div>
         )}
 
         {changed && (plan.amountLost || plan.changedRecipes.length > 0) && (
-          <div className="rounded-md bg-amber-50 p-3 text-sm text-amber-900">
+          <div className="rounded-md bg-warn-soft p-3 text-sm text-warn">
             {plan.amountLost && <p>Mängden hemma går inte att räkna om och töms.</p>}
             {plan.changedRecipes.length > 0 && (
               <p>
@@ -113,13 +113,13 @@ export function ItemEditor({ item, items, recipes, onSave, onDelete, onClose, op
           <button
             onClick={() => onSave(edit)}
             disabled={!changed || !trimmed || duplicate}
-            className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-40"
+            className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-on-accent hover:bg-accent-strong disabled:opacity-40"
           >
             Spara
           </button>
           <button
             onClick={onDelete}
-            className="ml-auto rounded-md px-4 py-2 text-sm text-red-700 hover:bg-red-50"
+            className="ml-auto rounded-md px-4 py-2 text-sm text-danger hover:bg-danger-soft"
             title={used.length ? 'Tas också bort från recepten' : undefined}
           >
             Ta bort vara{used.length > 0 && ` (och från ${used.length} recept)`}

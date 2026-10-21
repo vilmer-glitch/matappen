@@ -84,14 +84,14 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
 
   return (
     <main className="grid grid-cols-1 gap-4 p-6 lg:grid-cols-[1fr_24rem]">
-      <section className="rounded-xl bg-white p-4 shadow">
+      <section className="rounded-xl bg-surface p-4 shadow">
         <div className="mb-3 flex flex-wrap items-center gap-3">
-          <h2 className="text-lg font-semibold text-stone-800">Varor ({store.items.length})</h2>
+          <h2 className="text-lg font-semibold text-ink">Varor ({store.items.length})</h2>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Sök vara…"
-            className="min-w-48 flex-1 rounded-md border border-stone-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none"
+            className="min-w-48 flex-1 rounded-md border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
           />
         </div>
         <div className="mb-3 flex flex-wrap gap-4 text-xs">
@@ -99,16 +99,16 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
           <Chips options={originFilters} value={originFilter} onChange={setOriginFilter} />
         </div>
 
-        {errorText && <p className="mb-3 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">{errorText}</p>}
+        {errorText && <p className="mb-3 rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">{errorText}</p>}
 
         {store.loading ? (
-          <p className="text-sm text-stone-400">Hämtar varor…</p>
+          <p className="text-sm text-faint">Hämtar varor…</p>
         ) : shown.length === 0 ? (
-          <p className="text-sm text-stone-400">Ingen vara matchar.</p>
+          <p className="text-sm text-faint">Ingen vara matchar.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
-              <thead className="text-xs uppercase tracking-wide text-stone-400">
+              <thead className="text-xs uppercase tracking-wide text-faint">
                 <tr>
                   <th className="py-2 pr-3 font-semibold">Vara</th>
                   <th className="py-2 pr-3 font-semibold">Grupp</th>
@@ -119,26 +119,26 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
                   <th className="py-2 font-semibold">Ursprung</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone-100">
+              <tbody className="divide-y divide-line">
                 {shown.map((item) => {
                   const used = recipesUsing(item.id, recipes).length
                   return (
                     <tr
                       key={item.id}
                       onClick={() => onSelect(item.id)}
-                      className={`cursor-pointer ${item.id === itemId ? 'bg-emerald-50' : 'hover:bg-stone-50'}`}
+                      className={`cursor-pointer ${item.id === itemId ? 'bg-accent-soft' : 'hover:bg-surface-2'}`}
                     >
-                      <td className="py-2 pr-3 font-medium text-stone-800">{item.name}</td>
-                      <td className="py-2 pr-3 text-stone-600">{groupLabels[groupOf(item)]}</td>
-                      <td className="py-2 pr-3 text-stone-600">{item.is_staple ? '–' : unitLabel(item.unit)}</td>
-                      <td className="py-2 pr-3 text-stone-500">
+                      <td className="py-2 pr-3 font-medium text-ink">{item.name}</td>
+                      <td className="py-2 pr-3 text-muted">{groupLabels[groupOf(item)]}</td>
+                      <td className="py-2 pr-3 text-muted">{item.is_staple ? '–' : unitLabel(item.unit)}</td>
+                      <td className="py-2 pr-3 text-muted">
                         {item.is_staple
                           ? 'alla'
                           : recipeUnitsFor(item.unit)
                               .map((u) => u.label)
                               .join(', ')}
                       </td>
-                      <td className="py-2 pr-3 text-stone-600">
+                      <td className="py-2 pr-3 text-muted">
                         {item.is_staple
                           ? 'alltid'
                           : item.quantity === null
@@ -147,8 +147,8 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
                               ? 'slut'
                               : `${formatAmount(item.quantity)} ${unitLabel(item.unit)}`}
                       </td>
-                      <td className="py-2 pr-3 text-stone-600">{used ? `${used} recept` : '–'}</td>
-                      <td className="py-2 text-stone-400">{item.is_default ? 'Från början' : 'Egen'}</td>
+                      <td className="py-2 pr-3 text-muted">{used ? `${used} recept` : '–'}</td>
+                      <td className="py-2 text-faint">{item.is_default ? 'Från början' : 'Egen'}</td>
                     </tr>
                   )
                 })}
@@ -158,7 +158,7 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
         )}
       </section>
 
-      <aside className="rounded-xl bg-white p-5 shadow lg:sticky lg:top-4 lg:self-start">
+      <aside className="rounded-xl bg-surface p-5 shadow lg:sticky lg:top-4 lg:self-start">
         {selected ? (
           <ItemEditor
             key={selected.id + selected.unit + selected.is_staple + selected.name}
@@ -171,7 +171,7 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
             openRecipe={openRecipe}
           />
         ) : (
-          <p className="text-sm text-stone-400">Klicka på en vara för att se mer, ändra den eller ta bort den.</p>
+          <p className="text-sm text-faint">Klicka på en vara för att se mer, ändra den eller ta bort den.</p>
         )}
       </aside>
     </main>
@@ -194,7 +194,7 @@ function Chips<T extends string>({
           key={o.value}
           onClick={() => onChange(o.value)}
           className={`rounded-full px-2.5 py-1 ${
-            value === o.value ? 'bg-stone-800 text-white' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+            value === o.value ? 'bg-ink text-bg' : 'bg-surface-2 text-muted hover:bg-line'
           }`}
         >
           {o.label}

@@ -92,35 +92,35 @@ export function RecipeForm({ recipe, items, onCreateItem, onSave, onCancel }: Pr
 
       <Field label={`Ingredienser för ${servings || '?'} portioner`}>
         {ingredients.length > 0 && (
-          <ul className="mb-2 divide-y divide-stone-100 rounded-md border border-stone-200">
+          <ul className="mb-2 divide-y divide-line rounded-md border border-line">
             {ingredients.map((row, index) => {
               const item = itemsById.get(row.item_id)
               return (
                 <li key={row.item_id} className="group flex items-center gap-2 px-2 py-1.5">
-                  <div className="flex flex-col text-[10px] leading-none text-stone-300">
-                    <button type="button" onClick={() => moveRow(index, -1)} className="hover:text-stone-700" title="Flytta upp">
+                  <div className="flex flex-col text-[10px] leading-none text-faint">
+                    <button type="button" onClick={() => moveRow(index, -1)} className="hover:text-ink" title="Flytta upp">
                       ▲
                     </button>
-                    <button type="button" onClick={() => moveRow(index, 1)} className="hover:text-stone-700" title="Flytta ner">
+                    <button type="button" onClick={() => moveRow(index, 1)} className="hover:text-ink" title="Flytta ner">
                       ▼
                     </button>
                   </div>
-                  <span className="flex-1 text-stone-800">
+                  <span className="flex-1 text-ink">
                     {item?.name ?? 'Okänd vara'}
-                    {item?.is_staple && <span className="ml-2 text-xs text-stone-400">basvara</span>}
+                    {item?.is_staple && <span className="ml-2 text-xs text-faint">basvara</span>}
                   </span>
                   <input
                     inputMode="decimal"
                     value={row.quantityText}
                     onChange={(e) => updateRow(index, { quantityText: e.target.value })}
                     placeholder="Mängd"
-                    className="w-20 rounded border border-stone-300 px-2 py-1 text-right text-sm"
+                    className="w-20 rounded border border-line px-2 py-1 text-right text-sm"
                   />
                   <select
                     title="Enheterna följer varans enhet i lagret. Byt den under fliken Varor."
                     value={row.unit ?? ''}
                     onChange={(e) => updateRow(index, { unit: (e.target.value || null) as RecipeUnit | null })}
-                    className="w-16 rounded border border-stone-300 px-1 py-1 text-sm"
+                    className="w-16 rounded border border-line px-1 py-1 text-sm"
                   >
                     {item?.is_staple && <option value="">–</option>}
                     {recipeUnitsFor(item?.unit ?? null).map((u) => (
@@ -133,7 +133,7 @@ export function RecipeForm({ recipe, items, onCreateItem, onSave, onCancel }: Pr
                     type="button"
                     onClick={() => setIngredients((prev) => prev.filter((_, i) => i !== index))}
                     title="Ta bort ingrediens"
-                    className="px-1 text-stone-300 hover:text-red-600"
+                    className="px-1 text-faint hover:text-danger"
                   >
                     ×
                   </button>
@@ -179,11 +179,11 @@ export function RecipeForm({ recipe, items, onCreateItem, onSave, onCancel }: Pr
         <button
           onClick={save}
           disabled={saving || !name.trim()}
-          className="rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="rounded-md bg-accent px-4 py-2 text-sm font-medium text-on-accent hover:bg-accent-strong disabled:opacity-50"
         >
           {saving ? 'Sparar…' : 'Spara'}
         </button>
-        <button onClick={onCancel} className="rounded-md px-4 py-2 text-sm text-stone-500 hover:bg-stone-100">
+        <button onClick={onCancel} className="rounded-md px-4 py-2 text-sm text-muted hover:bg-surface-2">
           Avbryt
         </button>
       </div>
@@ -191,12 +191,12 @@ export function RecipeForm({ recipe, items, onCreateItem, onSave, onCancel }: Pr
   )
 }
 
-const inputClass = 'w-full rounded-md border border-stone-300 px-3 py-2 text-sm focus:border-emerald-600 focus:outline-none'
+const inputClass = 'w-full rounded-md border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none'
 
 function Field({ label, className = '', children }: { label: string; className?: string; children: React.ReactNode }) {
   return (
     <div className={className}>
-      <span className="mb-1 block text-sm font-medium text-stone-600">{label}</span>
+      <span className="mb-1 block text-sm font-medium text-muted">{label}</span>
       {children}
     </div>
   )

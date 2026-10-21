@@ -61,32 +61,32 @@ export function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-stone-100 p-4">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4 rounded-xl bg-white p-8 shadow">
-        <h1 className="text-2xl font-semibold text-stone-800">Matappen</h1>
-        <p className="text-stone-500">{titles[mode]}</p>
+    <main className="flex min-h-screen items-center justify-center p-4">
+      <form onSubmit={handleSubmit} className="w-full max-w-sm space-y-4 rounded-2xl border border-line bg-surface p-8 shadow-sm">
+        <h1 className="font-display text-3xl font-semibold text-ink">Matappen</h1>
+        <p className="text-muted">{titles[mode]}</p>
 
         <label className="block">
-          <span className="text-sm text-stone-600">E-post</span>
+          <span className="text-sm text-muted">E-post</span>
           <input
             type="email"
             required
             autoComplete="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2 focus:border-emerald-600 focus:outline-none"
+            className="mt-1 w-full rounded-md border border-line px-3 py-2 focus:border-accent focus:outline-none"
           />
         </label>
 
         {mode !== 'reset' && (
           <label className="block">
-            <span className="flex justify-between text-sm text-stone-600">
+            <span className="flex justify-between text-sm text-muted">
               Lösenord
               {mode === 'login' && (
                 <button
                   type="button"
                   onClick={() => switchMode('reset')}
-                  className="text-stone-400 hover:text-stone-700"
+                  className="text-faint hover:text-ink"
                 >
                   Glömt lösenordet?
                 </button>
@@ -99,18 +99,18 @@ export function LoginPage() {
               autoComplete={mode === 'login' ? 'current-password' : 'new-password'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 w-full rounded-md border border-stone-300 px-3 py-2 focus:border-emerald-600 focus:outline-none"
+              className="mt-1 w-full rounded-md border border-line px-3 py-2 focus:border-accent focus:outline-none"
             />
           </label>
         )}
 
-        {error && <p className="text-sm text-red-600">{error}</p>}
-        {info && <p className="text-sm text-emerald-700">{info}</p>}
+        {error && <p className="text-sm text-danger">{error}</p>}
+        {info && <p className="text-sm text-accent-strong">{info}</p>}
 
         <button
           type="submit"
           disabled={loading}
-          className="w-full rounded-md bg-emerald-600 py-2 font-medium text-white hover:bg-emerald-700 disabled:opacity-50"
+          className="w-full rounded-md bg-accent py-2 font-medium text-on-accent hover:bg-accent-strong disabled:opacity-50"
         >
           {loading ? 'Vänta…' : mode === 'reset' ? 'Skicka länk' : titles[mode]}
         </button>
@@ -118,7 +118,7 @@ export function LoginPage() {
         <button
           type="button"
           onClick={() => switchMode(mode === 'login' ? 'signup' : 'login')}
-          className="w-full text-sm text-stone-500 hover:text-stone-800"
+          className="w-full text-sm text-muted hover:text-ink"
         >
           {mode === 'login' ? 'Inget konto? Skapa ett' : 'Tillbaka till inloggningen'}
         </button>

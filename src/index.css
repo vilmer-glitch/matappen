@@ -1,1 +1,85 @@
 @import "tailwindcss";
+
+/*
+  Colors are defined once here, with a light and a dark version.
+  Components use the names (bg-surface, text-ink, bg-accent …), so dark mode follows automatically.
+*/
+:root {
+  --bg: #f6efe4;
+  --surface: #fffaf3;
+  --surface-2: #f1e7d9;
+  --ink: #3a2e26;
+  --muted: #84735f;
+  --faint: #b3a491;
+  --line: #e6d9c7;
+  --accent: #c0603a;
+  --accent-strong: #9f4a27;
+  --accent-soft: #f6e1d3;
+  --on-accent: #ffffff;
+  --olive: #66762f;
+  --olive-soft: #e7ebd2;
+  --warn: #a8701a;
+  --warn-soft: #f6e8cb;
+  --danger: #b0392c;
+  --danger-soft: #f7dfda;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1c1713;
+    --surface: #27201b;
+    --surface-2: #322923;
+    --ink: #f2e7da;
+    --muted: #b2a08d;
+    --faint: #7c6c5d;
+    --line: #3e342c;
+    --accent: #e0805a;
+    --accent-strong: #f0a07f;
+    --accent-soft: #48291c;
+    --on-accent: #1c1713;
+    --olive: #b2c06f;
+    --olive-soft: #333a1f;
+    --warn: #e2b45e;
+    --warn-soft: #43351b;
+    --danger: #ef8070;
+    --danger-soft: #4a2420;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-soft: var(--accent-soft);
+  --color-on-accent: var(--on-accent);
+  --color-olive: var(--olive);
+  --color-olive-soft: var(--olive-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  --font-sans: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+/* Form fields and selects pick up the theme too */
+input,
+select,
+textarea {
+  background-color: var(--surface);
+  color: var(--ink);
+}
