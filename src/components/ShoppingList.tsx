@@ -1,12 +1,13 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Check, ChevronDown, Lightbulb, PackageCheck, Plus, ShoppingBasket, X } from 'lucide-react'
 import type { ItemsStore } from '../hooks/useItems'
 import type { PlannedMealsStore } from '../hooks/usePlannedMeals'
 import type { ShoppingListStore } from '../hooks/useShoppingList'
-import { statusFor, unitLabel } from '../lib/constants'
-import { formatAmount } from '../lib/recipeUnits'
+import { statusFor } from '../lib/constants'
+import { itemStep } from '../lib/search'
 import { shoppingNeeds } from '../lib/shopping'
 import type { Item, Recipe, ShoppingRow } from '../types'
+import { AmountStepper } from './AmountStepper'
 import { AddItemSearch, type NewItem } from './pantry/AddItemSearch'
 
 type Props = {
@@ -188,19 +189,6 @@ type LineProps = {
 }
 
 function ShoppingLine({ line, onToggle, onQuantity, onRemove }: LineProps) {
-  const [value, setValue] = useState(format(line.quantity))
-  useEffect(() => setValue(format(line.quantity)), [line.quantity])
-
-  function save() {
-    const text = value.replace(/\s/g, '').replace(',', '.')
-    const quantity = text === '' ? null : Number(text)
-    if (quantity !== null && (Number.isNaN(quantity) || quantity < 0)) {
-      setValue(format(line.quantity))
-      return
-    }
-    if (quantity !== line.quantity) onQuantity(quantity)
-  }
-
   return (
     <li className="group flex min-h-12 items-center gap-3 py-1.5">
       <button
@@ -219,19 +207,13 @@ function ShoppingLine({ line, onToggle, onQuantity, onRemove }: LineProps) {
         {line.recipes.length > 0 && <span className="block truncate text-xs text-faint">{line.recipes.join(', ')}</span>}
       </span>
       {line.item.unit && (
-        <label className="flex items-center rounded-full bg-surface-2 pr-3 text-sm text-muted focus-within:ring-2 focus-within:ring-accent">
-          <input
-            inputMode="decimal"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            onBlur={save}
-            onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
-            placeholder="?"
-            title="Ändra till det du köpte"
-            className="w-16 rounded-full bg-transparent py-1 pr-1 text-right font-semibold text-ink focus:outline-none"
-          />
-          <span className="w-5">{unitLabel(line.item.unit)}</span>
-        </label>
+        <AmountStepper
+          value={line.quantity}
+          unit={line.item.unit}
+          step={itemStep(line.item.name, line.item.unit)}
+          onChange={onQuantity}
+          label={line.item.name}
+        />
       )}
       {onRemove && (
         <button
@@ -244,8 +226,4 @@ function ShoppingLine({ line, onToggle, onQuantity, onRemove }: LineProps) {
       )}
     </li>
   )
-}
-
-function format(quantity: number | null) {
-  return quantity === null ? '' : formatAmount(quantity)
 }

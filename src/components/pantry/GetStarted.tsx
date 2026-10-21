@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { PackagePlus, Refrigerator, Search, Wheat, X, type LucideIcon } from 'lucide-react'
-import { CATALOG, type CatalogItem } from '../../data/catalog'
+import { CATALOG, stepFor, type CatalogItem } from '../../data/catalog'
 import type { ItemsStore } from '../../hooks/useItems'
-import { statusFor, unitLabel } from '../../lib/constants'
+import { statusFor } from '../../lib/constants'
 import { normalize } from '../../lib/search'
+import { AmountStepper } from '../AmountStepper'
 
 type Props = {
   store: ItemsStore
@@ -13,7 +14,7 @@ type Props = {
 
 // "Kom igång": fill the pantry quickly by typing how much you have of common groceries
 export function GetStarted({ store, showUndo, onClose }: Props) {
-  const [amounts, setAmounts] = useState<Record<string, string>>({})
+  const [amounts, setAmounts] = useState<Record<string, number | null>>({})
   const [showAll, setShowAll] = useState(false)
   const [search, setSearch] = useState('')
   const [saving, setSaving] = useState(false)
@@ -29,7 +30,7 @@ export function GetStarted({ store, showUndo, onClose }: Props) {
   )
 
   const filled = available
-    .map((c) => ({ entry: c, amount: parseAmount(amounts[c.name] ?? '') }))
+    .map((c) => ({ entry: c, amount: amounts[c.name] ?? null }))
     .filter((f): f is { entry: CatalogItem; amount: number } => f.amount !== null)
 
   async function save() {
@@ -79,12 +80,12 @@ export function GetStarted({ store, showUndo, onClose }: Props) {
 
       <Section title="Kyl och frys" icon={Refrigerator}>
         {shown.filter((c) => c.group === 'fridge').map((c) => (
-          <AmountRow key={c.name} entry={c} value={amounts[c.name] ?? ''} onChange={(v) => setAmounts({ ...amounts, [c.name]: v })} />
+          <AmountRow key={c.name} entry={c} value={amounts[c.name] ?? null} onChange={(v) => setAmounts({ ...amounts, [c.name]: v })} />
         ))}
       </Section>
       <Section title="Skafferi" icon={Wheat}>
         {shown.filter((c) => c.group === 'pantry').map((c) => (
-          <AmountRow key={c.name} entry={c} value={amounts[c.name] ?? ''} onChange={(v) => setAmounts({ ...amounts, [c.name]: v })} />
+          <AmountRow key={c.name} entry={c} value={amounts[c.name] ?? null} onChange={(v) => setAmounts({ ...amounts, [c.name]: v })} />
         ))}
       </Section>
 
@@ -121,30 +122,18 @@ function Section({ title, icon: Icon, children }: { title: string; icon: LucideI
   )
 }
 
-function AmountRow({ entry, value, onChange }: { entry: CatalogItem; value: string; onChange: (v: string) => void }) {
-  const filled = parseAmount(value) !== null
+function AmountRow({ entry, value, onChange }: { entry: CatalogItem; value: number | null; onChange: (v: number | null) => void }) {
   return (
-    <li className="flex min-h-11 items-center gap-2 border-b border-line/70 py-1">
-      <span className={`flex-1 truncate ${filled ? 'font-semibold text-ink' : 'text-muted'}`}>{entry.name}</span>
-      <label className="flex items-center rounded-full bg-surface pr-3 text-sm text-muted focus-within:ring-2 focus-within:ring-accent">
-        <input
-          inputMode="decimal"
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="–"
-          aria-label={`Mängd ${entry.name}`}
-          className="w-16 rounded-full bg-transparent py-1 pr-1 text-right font-semibold text-ink focus:outline-none"
-        />
-        <span className="w-5">{unitLabel(entry.unit)}</span>
-      </label>
+    <li className="flex min-h-12 items-center gap-2 border-b border-line/70 py-1">
+      <span className={`flex-1 truncate ${value !== null ? 'font-semibold text-ink' : 'text-muted'}`}>{entry.name}</span>
+      <AmountStepper
+        value={value}
+        unit={entry.unit}
+        step={stepFor(entry.name, entry.unit)}
+        onChange={onChange}
+        label={entry.name}
+        live
+      />
     </li>
   )
-}
-
-// "1,5" → 1.5; empty or invalid → null. 0 counts as "out of stock", which is also worth knowing.
-function parseAmount(text: string) {
-  const t = text.replace(/\s/g, '').replace(',', '.')
-  if (t === '') return null
-  const n = Number(t)
-  return Number.isNaN(n) || n < 0 ? null : n
 }

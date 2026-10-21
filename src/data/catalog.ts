@@ -252,3 +252,34 @@ const STAPLES = spices([
 ])
 
 export const CATALOG: CatalogItem[] = [...rows('fridge', FRIDGE), ...rows('pantry', PANTRY), ...STAPLES]
+
+// How much one tap on + or − changes the amount. Most items use the default for their unit;
+// these are bought or used in smaller (or bigger) portions.
+const DEFAULT_STEPS: Record<Unit, number> = { g: 100, ml: 50, dl: 0.5, l: 0.5, pcs: 1 }
+
+const STEP_OVERRIDES: Record<string, number> = {
+  Ingefära: 10,
+  Parmesan: 50,
+  Mozzarella: 125,
+  Bacon: 70,
+  Babyspenat: 50,
+  Ruccola: 50,
+  Pesto: 50,
+  'Röd currypasta': 25,
+  Tomatpuré: 10,
+  'Sambal oelek': 10,
+  Sriracha: 10,
+  Fisksås: 25,
+  Ostronsås: 25,
+  Sesamolja: 25,
+  Dijonsenap: 25,
+  Oliver: 50,
+  Nötter: 50,
+  Choklad: 50,
+  Kakao: 50,
+  'Soltorkade tomater': 50,
+}
+
+export function stepFor(catalogName: string | undefined, unit: Unit | null) {
+  return (catalogName && STEP_OVERRIDES[catalogName]) || (unit ? DEFAULT_STEPS[unit] : 1)
+}

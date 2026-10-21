@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { ChevronDown, CircleOff, ListPlus, Refrigerator, Sparkles, Wheat, type LucideIcon } from 'lucide-react'
 import type { ItemsStore } from '../../hooks/useItems'
 import { statusFor, unitLabel } from '../../lib/constants'
@@ -20,8 +20,14 @@ export function Pantry({ store, showUndo, openItem }: Props) {
   const [focusId, setFocusId] = useState<string | null>(null)
   const [showGetStarted, setShowGetStarted] = useState(false)
 
+  // Several taps on + or − in a row are one change: Ångra goes back to the amount before the first tap
+  const series = useRef<{ id: string; before: number | null; at: number } | null>(null)
+
   function setQuantity(item: Item, quantity: number | null) {
-    const before = item.quantity
+    const now = Date.now()
+    const continues = series.current && series.current.id === item.id && now - series.current.at < 6000
+    const before = continues ? series.current!.before : item.quantity
+    series.current = { id: item.id, before, at: now }
     updateItem(item.id, { quantity, status: statusFor(quantity) })
     const text = quantity === 0 ? 'slut' : quantity === null ? 'okänd mängd' : `${quantity.toLocaleString('sv-SE')} ${unitLabel(item.unit)}`
     showUndo(`${item.name}: ${text}`, () => updateItem(item.id, { quantity: before, status: statusFor(before) }))

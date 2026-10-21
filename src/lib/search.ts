@@ -1,4 +1,4 @@
-import { CATALOG, type CatalogItem } from '../data/catalog'
+import { CATALOG, stepFor, type CatalogItem } from '../data/catalog'
 import type { Item } from '../types'
 
 // Lowercase and without accents, so "Tomatpuré", "tomatpure" and "TOMATPURÉ" are the same.
@@ -98,4 +98,9 @@ export function suggest(query: string, items: Item[], limit = 8): Suggestion[] {
 
   const byScore = (a: Suggestion, b: Suggestion) => a.score - b.score
   return [...own.sort(byScore), ...catalog.sort(byScore)].slice(0, limit)
+}
+
+// How much + and − change an item's amount
+export function itemStep(name: string, unit: Item['unit']) {
+  return stepFor(catalogEntryFor(name)?.name, unit)
 }

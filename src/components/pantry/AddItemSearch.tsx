@@ -1,7 +1,9 @@
 import { useState, type FormEvent } from 'react'
 import { Search, Sparkles } from 'lucide-react'
 import { CATEGORIES, UNITS, unitLabel, type Category, type Unit } from '../../lib/constants'
-import type { CatalogItem } from '../../data/catalog'
+import { stepFor, type CatalogItem } from '../../data/catalog'
+import { formatAmount } from '../../lib/recipeUnits'
+import { AmountStepper } from '../AmountStepper'
 import { catalogEntryFor, suggest } from '../../lib/search'
 import type { Item } from '../../types'
 
@@ -32,7 +34,7 @@ export function AddItemSearch({
   const [newName, setNewName] = useState<string | null>(null)
   const [group, setGroup] = useState<NewItem['group']>('fridge')
   const [unit, setUnit] = useState<Unit>('g')
-  const [quantity, setQuantity] = useState('')
+  const [quantity, setQuantity] = useState<number | null>(null)
 
   // Known from the catalog: group and unit are already set
   const [known, setKnown] = useState(false)
@@ -49,7 +51,7 @@ export function AddItemSearch({
   // Opens the form for a new item, prefilled when the app knows it
   function open(name: string, entry?: CatalogItem) {
     setNewName(name)
-    setQuantity('')
+    setQuantity(null)
     setQuery('')
     setKnown(Boolean(entry))
     if (entry) {
@@ -87,13 +89,7 @@ export function AddItemSearch({
   function create(e: FormEvent) {
     e.preventDefault()
     if (!newName) return
-    const amount = Number(quantity.replace(/\s/g, '').replace(',', '.'))
-    onCreate({
-      name: newName,
-      group,
-      unit,
-      quantity: quantity.trim() === '' || Number.isNaN(amount) ? null : amount,
-    })
+    onCreate({ name: newName, group, unit, quantity })
     setNewName(null)
   }
 
@@ -121,28 +117,40 @@ export function AddItemSearch({
 
         {group !== 'staple' && (
           <div className="flex items-center gap-2">
-            {withQuantity && (
-              <input
-                autoFocus
-                inputMode="decimal"
+            {withQuantity && known && (
+              <AmountStepper
                 value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                placeholder="Mängd"
-                className="w-24 rounded-full border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
+                unit={unit}
+                step={stepFor(newName, unit)}
+                onChange={setQuantity}
+                label={newName}
+                focus
+                live
               />
             )}
-            {!withQuantity && <span className="text-sm text-muted">Enhet i lagret:</span>}
-            {known ? (
-              <span className="text-sm font-semibold text-muted">{unitLabel(unit)}</span>
-            ) : (
-              <Choice options={UNITS} value={unit} onChange={setUnit} />
+            {!known && (
+              <>
+                {withQuantity ? (
+                  <AmountStepper
+                    value={quantity}
+                    unit={unit}
+                    step={stepFor(undefined, unit)}
+                    onChange={setQuantity}
+                    label={newName}
+                    live
+                  />
+                ) : (
+                  <span className="text-sm text-muted">Enhet i lagret:</span>
+                )}
+                <Choice options={UNITS} value={unit} onChange={setUnit} />
+              </>
             )}
           </div>
         )}
 
         <div className="flex gap-2">
           <button type="submit" className="flex-1 rounded-full bg-accent py-2 text-sm font-semibold text-on-accent hover:bg-accent-strong">
-            Lägg till{group !== 'staple' && quantity.trim() ? ` ${quantity.trim()} ${unitLabel(unit)}` : ''}
+            Lägg till{group !== 'staple' && quantity !== null ? ` ${formatAmount(quantity)} ${unitLabel(unit)}` : ''}
           </button>
           <button
             type="button"
