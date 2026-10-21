@@ -59,7 +59,7 @@ export function WeeklyMeals({ recipes, store, planned, showUndo, openRecipe, onA
         <div className="mb-4 flex flex-col items-center rounded-xl bg-surface-2 px-4 py-6 text-center">
           <UtensilsCrossed size={28} className="mb-2 text-faint" />
           <p className="text-sm text-muted">Inga rätter valda än.</p>
-          <p className="text-xs text-faint">Tryck + vid en rätt under "Vad kan jag laga?" eller välj nedan.</p>
+          <p className="text-xs text-faint">Tryck + vid en rätt under "Kan lagas nu" eller välj nedan.</p>
         </div>
       )}
 

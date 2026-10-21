@@ -15,7 +15,7 @@ type Props = {
   onPlan: (recipeId: string) => void
 }
 
-// "Vad kan jag laga?": recipes that can be cooked now, and those missing only 1–2 items
+// "Kan lagas nu": recipes that can be cooked now, and those missing only 1–2 items
 export function CanCook({ recipes, items, loading, openRecipe, plannedIds, onPlan }: Props) {
   if (loading) return <p className="text-sm text-faint">Hämtar recept…</p>
   if (recipes.length === 0) return <p className="text-sm text-faint">Lägg till rätter under Recept först.</p>
@@ -30,7 +30,7 @@ export function CanCook({ recipes, items, loading, openRecipe, plannedIds, onPla
   return (
     <div className="space-y-4">
       <section>
-        <h3 className="mb-1 flex items-center gap-2 text-sm font-semibold text-muted"><span className="h-2.5 w-2.5 rounded-full bg-olive" />Kan lagas nu <span className="text-faint">{ready.length}</span></h3>
+        <h3 className="mb-1 flex items-center gap-2 text-sm font-semibold text-muted"><span className="h-2.5 w-2.5 rounded-full bg-olive" />Har allt hemma <span className="text-faint">{ready.length}</span></h3>
         {ready.length === 0 ? (
           <p className="px-3 py-1.5 text-sm text-faint">Ingen rätt just nu.</p>
         ) : (

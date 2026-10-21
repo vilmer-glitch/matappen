@@ -49,7 +49,7 @@ export function Overview({ section, showUndo, openRecipe, openItem }: Props) {
         <Column title="Veckans rätter" icon={CalendarDays} visible>
           <WeeklyMeals recipes={recipes} store={store} planned={planned} showUndo={showUndo} openRecipe={openRecipe} onAdd={plan} />
         </Column>
-        <Column title="Vad kan jag laga?" icon={ChefHat} visible>
+        <Column title="Kan lagas nu" icon={ChefHat} visible>
           <CanCook
             recipes={recipes}
             items={allItems}
