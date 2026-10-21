@@ -9,6 +9,8 @@ export type Item = {
   quantity: number | null
   status: Status
   is_staple: boolean
+  // Added by the app from the start (staples), not by you
+  is_default: boolean
 }
 
 export type RecipeIngredient = {

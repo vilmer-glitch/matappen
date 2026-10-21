@@ -37,13 +37,15 @@ En webbapp som håller koll på matvarorna hemma, visar vad jag kan laga och skr
   - Varor i Kyl och Skafferi har bara mängd, inga statusknappar. Mängd 0 = slut.
   - Varje vara har en låst enhet som väljs när den läggs till: g, ml, dl, l eller st (kyckling i g, grädde i dl, mjölk i l, rödlök i st).
   - Basvaror har ingen mängd.
-  - Från början finns bara basvarorna i lagret.
+  - Från början finns bara basvarorna i lagret. Alla nya konton får dem automatiskt (märkta "Från början").
+- **Varor (egen flik):** alla varor i en tabell med grupp, enhet, vilka enheter recept kan använda, mängd hemma, vilka recept som använder den och om den är egen eller fanns från början. Klicka på en vara (även i lagret) för att ändra namn, grupp och enhet eller ta bort den.
+  - Byte inom samma sort (ml ↔ dl ↔ l) räknas om. Byte till annan sort (g → st) tömmer mängden hemma och i recepten, och appen visar vilka recept som behöver fyllas i.
+  - En vara som tas bort försvinner också från recepten. Ångra lägger tillbaka allt.
 - **Basvaror:** varor som alltid antas finnas, till exempel salt, olja och kryddor. Markeras med en bock och dras aldrig av.
 - **Rätter:** namn och ingredienser, plus valfri länk och anteckning.
   - Egen flik "Recept": lista till vänster, vald rätt till höger. − / + vid portionerna skalar mängderna på skärmen.
   - Ingredienser kopplas till varor i lagret. Ny ingrediens skapas i lagret med mängd 0.
   - Recept kan använda närliggande enheter (g/kg, ml/dl/l/msk/tsk/krm, st). Appen räknar om till lagrets enhet.
-  - En vara som används i ett recept kan inte tas bort från lagret (sätt mängden till 0 i stället).
 - **Vad kan jag laga?:** visar rätter jag kan laga nu och rätter där bara 1–2 varor saknas.
   - "Kan lagas" betyder minst 1 portion. Appen visar hur många portioner det jag har hemma räcker till.
 - **Veckans rätter:** jag väljer rätter med ett klick. Allt som saknas för dem hamnar automatiskt på inköpslistan, en gång per vara även om flera rätter behöver den.

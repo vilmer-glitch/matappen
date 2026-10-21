@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import type { Item } from '../types'
 
-const COLUMNS = 'id, name, category, unit, quantity, status, is_staple'
+const COLUMNS = 'id, name, category, unit, quantity, status, is_staple, is_default'
 
 // Loads the user's items and keeps them in sync with the database.
 // Changes are shown immediately and saved in the background.
@@ -23,7 +23,7 @@ export function useItems() {
       })
   }, [])
 
-  const addItem = useCallback(async (newItem: Omit<Item, 'id'>) => {
+  const addItem = useCallback(async (newItem: Omit<Item, 'id' | 'is_default'>) => {
     const { data, error } = await supabase.from('items').insert(newItem).select(COLUMNS).single()
     if (error) {
       setError(error.code === '23505' ? `"${newItem.name}" finns redan.` : 'Kunde inte spara varan.')
@@ -36,7 +36,7 @@ export function useItems() {
   const updateItem = useCallback(async (id: string, changes: Partial<Item>) => {
     setItems((prev) => prev.map((item) => (item.id === id ? { ...item, ...changes } : item)))
     const { error } = await supabase.from('items').update(changes).eq('id', id)
-    if (error) setError('Kunde inte spara ändringen.')
+    if (error) setError(error.code === '23505' ? 'Det finns redan en vara med det namnet.' : 'Kunde inte spara ändringen.')
   }, [])
 
   // Returns false if the item couldn't be removed (e.g. it is used in a recipe)

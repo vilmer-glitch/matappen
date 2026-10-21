@@ -154,8 +154,8 @@ export function AddItemSearch({
   )
 }
 
-// A row of buttons where one is selected
-function Choice<T extends string>({
+// A row of buttons where one is selected (also used in the item editor)
+export function Choice<T extends string>({
   options,
   value,
   onChange,

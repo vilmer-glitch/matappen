@@ -8,9 +8,10 @@ import { ItemRow } from './ItemRow'
 type Props = {
   store: ItemsStore
   showUndo: (message: string, undo: () => void) => void
+  openItem: (id: string) => void
 }
 
-export function Pantry({ store, showUndo }: Props) {
+export function Pantry({ store, showUndo, openItem }: Props) {
   const { items, loading, error, clearError, addItem, updateItem, removeItem, restoreItem } = store
   const [showStaples, setShowStaples] = useState(false)
   const [focusId, setFocusId] = useState<string | null>(null)
@@ -63,6 +64,7 @@ export function Pantry({ store, showUndo }: Props) {
             onFocused={() => setFocusId(null)}
             onQuantityChange={(quantity) => setQuantity(item, quantity)}
             onRemove={() => remove(item)}
+            onOpen={() => openItem(item.id)}
           />
         ))}
       </ul>

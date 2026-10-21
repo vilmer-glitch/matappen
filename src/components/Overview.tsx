@@ -11,9 +11,10 @@ import { WeeklyMeals } from './WeeklyMeals'
 type Props = {
   showUndo: (message: string, undo: () => void) => void
   openRecipe: (id: string) => void
+  openItem: (id: string) => void
 }
 
-export function Overview({ showUndo, openRecipe }: Props) {
+export function Overview({ showUndo, openRecipe, openItem }: Props) {
   // Shared by all three columns, so a change in one shows up in the others at once
   const store = useItems()
   const { recipes, loading } = useRecipes()
@@ -32,7 +33,7 @@ export function Overview({ showUndo, openRecipe }: Props) {
   return (
     <main className="grid grid-cols-1 gap-4 p-6 lg:grid-cols-3">
       <Column title="Lager">
-        <Pantry store={store} showUndo={showUndo} />
+        <Pantry store={store} showUndo={showUndo} openItem={openItem} />
       </Column>
       <Column title="Veckans rätter">
         <WeeklyMeals recipes={recipes} store={store} planned={planned} showUndo={showUndo} openRecipe={openRecipe} />

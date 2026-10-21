@@ -219,7 +219,7 @@ function ShoppingLine({ line, onToggle, onQuantity, onRemove }: LineProps) {
         <button
           onClick={onRemove}
           title="Ta bort från listan"
-          className="px-1 text-stone-300 opacity-0 hover:text-red-600 group-hover:opacity-100"
+          className="px-1 text-stone-300 hover:text-red-600 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
         >
           ×
         </button>

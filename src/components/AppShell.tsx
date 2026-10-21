@@ -3,16 +3,18 @@ import { supabase } from '../lib/supabase'
 import { usePage, type Page } from '../hooks/usePage'
 import { useUndo } from '../hooks/useUndo'
 import { Overview } from './Overview'
+import { ItemsPage } from './items/ItemsPage'
 import { RecipesPage } from './recipes/RecipesPage'
 import { UndoBar } from './UndoBar'
 
 const tabs: { page: Page; label: string }[] = [
   { page: 'overview', label: 'Översikt' },
   { page: 'recipes', label: 'Recept' },
+  { page: 'items', label: 'Varor' },
 ]
 
 export function AppShell({ session }: { session: Session }) {
-  const { page, recipeId, goTo } = usePage()
+  const { page, id, goTo } = usePage()
   const { toast, showUndo, dismiss } = useUndo()
 
   return (
@@ -43,10 +45,23 @@ export function AppShell({ session }: { session: Session }) {
         </div>
       </header>
 
-      {page === 'overview' ? (
-        <Overview showUndo={showUndo} openRecipe={(id) => goTo('recipes', id)} />
-      ) : (
-        <RecipesPage showUndo={showUndo} recipeId={recipeId} onSelect={(id) => goTo('recipes', id)} />
+      {page === 'overview' && (
+        <Overview
+          showUndo={showUndo}
+          openRecipe={(recipeId) => goTo('recipes', recipeId)}
+          openItem={(itemId) => goTo('items', itemId)}
+        />
+      )}
+      {page === 'recipes' && (
+        <RecipesPage showUndo={showUndo} recipeId={id} onSelect={(recipeId) => goTo('recipes', recipeId)} />
+      )}
+      {page === 'items' && (
+        <ItemsPage
+          showUndo={showUndo}
+          itemId={id}
+          onSelect={(itemId) => goTo('items', itemId)}
+          openRecipe={(recipeId) => goTo('recipes', recipeId)}
+        />
       )}
 
       <UndoBar toast={toast} onDismiss={dismiss} />

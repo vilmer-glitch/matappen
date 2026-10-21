@@ -1,13 +1,18 @@
 import { useEffect, useState } from 'react'
 
-export type Page = 'overview' | 'recipes'
+export type Page = 'overview' | 'recipes' | 'items'
 
-type Location = { page: Page; recipeId: string | null }
+type Location = { page: Page; id: string | null }
 
-// The current page is kept in the address (#recept or #recept/<id>), so a reload stays on the same page.
+// The page is kept in the address (#recept/<id>, #varor/<id>), so a reload stays on the same page.
+const hashNames: Record<Exclude<Page, 'overview'>, string> = { recipes: 'recept', items: 'varor' }
+
 function fromHash(): Location {
-  const match = window.location.hash.match(/^#recept(?:\/(.+))?$/)
-  return match ? { page: 'recipes', recipeId: match[1] ?? null } : { page: 'overview', recipeId: null }
+  for (const [page, name] of Object.entries(hashNames)) {
+    const match = window.location.hash.match(new RegExp(`^#${name}(?:/(.+))?$`))
+    if (match) return { page: page as Page, id: match[1] ?? null }
+  }
+  return { page: 'overview', id: null }
 }
 
 export function usePage() {
@@ -19,9 +24,9 @@ export function usePage() {
     return () => window.removeEventListener('hashchange', onChange)
   }, [])
 
-  function goTo(page: Page, recipeId: string | null = null) {
-    window.location.hash = page === 'recipes' ? `#recept${recipeId ? `/${recipeId}` : ''}` : ''
-    setLocation({ page, recipeId })
+  function goTo(page: Page, id: string | null = null) {
+    window.location.hash = page === 'overview' ? '' : `#${hashNames[page]}${id ? `/${id}` : ''}`
+    setLocation({ page, id })
   }
 
   return { ...location, goTo }

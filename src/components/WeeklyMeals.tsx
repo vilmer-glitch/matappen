@@ -94,7 +94,7 @@ export function WeeklyMeals({ recipes, store, planned, showUndo, openRecipe }: P
               <button
                 onClick={() => remove(meal, recipe.name)}
                 title="Ta bort"
-                className="px-1 text-stone-300 opacity-0 hover:text-red-600 group-hover:opacity-100"
+                className="px-1 text-stone-300 hover:text-red-600 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
               >
                 ×
               </button>

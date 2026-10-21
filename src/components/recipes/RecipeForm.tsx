@@ -117,6 +117,7 @@ export function RecipeForm({ recipe, items, onCreateItem, onSave, onCancel }: Pr
                     className="w-20 rounded border border-stone-300 px-2 py-1 text-right text-sm"
                   />
                   <select
+                    title="Enheterna följer varans enhet i lagret. Byt den under fliken Varor."
                     value={row.unit ?? ''}
                     onChange={(e) => updateRow(index, { unit: (e.target.value || null) as RecipeUnit | null })}
                     className="w-16 rounded border border-stone-300 px-1 py-1 text-sm"

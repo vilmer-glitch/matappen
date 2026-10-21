@@ -8,9 +8,10 @@ type Props = {
   onFocused: () => void
   onQuantityChange: (quantity: number | null) => void
   onRemove: () => void
+  onOpen: () => void
 }
 
-export function ItemRow({ item, focused, onFocused, onQuantityChange, onRemove }: Props) {
+export function ItemRow({ item, focused, onFocused, onQuantityChange, onRemove, onOpen }: Props) {
   const [value, setValue] = useState(formatQuantity(item.quantity))
   const input = useRef<HTMLInputElement>(null)
 
@@ -39,7 +40,13 @@ export function ItemRow({ item, focused, onFocused, onQuantityChange, onRemove }
 
   return (
     <li className="group flex items-center gap-2 py-1.5">
-      <span className={`min-w-0 flex-1 truncate ${isOut ? 'text-stone-400' : 'text-stone-800'}`}>{item.name}</span>
+      <button
+        onClick={onOpen}
+        title="Visa och ändra varan"
+        className={`min-w-0 flex-1 truncate text-left hover:underline ${isOut ? 'text-stone-400' : 'text-stone-800'}`}
+      >
+        {item.name}
+      </button>
 
       {isOut && <span className="rounded bg-red-100 px-1.5 py-0.5 text-xs text-red-700">Slut</span>}
 
@@ -68,7 +75,7 @@ export function ItemRow({ item, focused, onFocused, onQuantityChange, onRemove }
       <button
         onClick={onRemove}
         title="Ta bort"
-        className="px-1 text-stone-300 opacity-0 hover:text-red-600 group-hover:opacity-100"
+        className="px-1 text-stone-300 hover:text-red-600 [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
       >
         ×
       </button>
