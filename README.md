@@ -8,6 +8,8 @@ A web app that keeps track of the groceries at home, shows which dishes I can co
 
 ## Features
 - **Pantry** – everything at home in three groups: Fridge, Pantry and Staples. Each item has a locked unit (g, ml, dl, l, pcs) and an amount; 0 means out of stock
+- **Item catalog and smart search** – about 220 common groceries with the right group and unit. Search forgives typos, accents and other names ("tomatpure" finds Tomatpuré) and asks "did you mean …?" before creating a new item
+- **Get started** – a quick list of common groceries to fill the pantry in one go
 - **Staples** – salt, oil, spices etc. that are always assumed to be at home and have no amount. Every new account gets them automatically
 - **Items** – a table of every item: group, unit, which units recipes can use, amount at home, which recipes use it, and whether it's your own or a default. Edit name, group and unit, or remove an item (also from recipes, with undo)
 - **Built-in recipes** – a set of recipes everyone starts with, each based on a real recipe with a link to the source (ICA, Arla, Köket …), marked "Från appen". Editing or planning one saves your own copy

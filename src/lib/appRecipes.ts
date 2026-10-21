@@ -2,6 +2,7 @@ import { APP_RECIPES, type AppIngredient, type AppRecipe } from '../data/appReci
 import type { Item, Recipe } from '../types'
 import { statusFor } from './constants'
 import { convert } from './recipeUnits'
+import { catalogEntryFor, normalize } from './search'
 
 // Ingredients the user doesn't have yet get a stand-in item with this id prefix. It counts as
 // "out of stock" until the recipe is copied, when a real item is created.
@@ -11,11 +12,13 @@ export function isVirtualItem(id: string) {
   return id.startsWith(VIRTUAL_PREFIX)
 }
 
-// The user's item for an ingredient: same name or an alias, with a unit that can be converted
+// The user's item for an ingredient: same name, an alias or a catalog name for it,
+// with a unit that can be converted
 function findItem(ing: AppIngredient, items: Item[]) {
-  const names = [ing.name, ...(ing.aliases ?? [])].map((n) => n.toLowerCase())
+  const entry = catalogEntryFor(ing.name)
+  const names = [ing.name, ...(ing.aliases ?? []), ...(entry ? [entry.name, ...entry.aliases] : [])].map(normalize)
   for (const name of names) {
-    const item = items.find((i) => i.name.toLowerCase() === name)
+    const item = items.find((i) => normalize(i.name) === name)
     if (!item) continue
     if (item.is_staple || !ing.recipeUnit || !item.unit) return item
     if (convert(1, ing.recipeUnit, item.unit) !== null) return item
@@ -23,11 +26,20 @@ function findItem(ing: AppIngredient, items: Item[]) {
   return undefined
 }
 
+// Use the catalog's name, so recipes and the pantry always call it the same thing
+function itemName(ing: AppIngredient) {
+  return catalogEntryFor(ing.name)?.name ?? ing.name
+}
+
+function virtualId(ing: AppIngredient) {
+  return VIRTUAL_PREFIX + normalize(itemName(ing))
+}
+
 function virtualItem(ing: AppIngredient): Item {
   const isStaple = ing.group === 'staple'
   return {
-    id: VIRTUAL_PREFIX + ing.name.toLowerCase(),
-    name: ing.name,
+    id: virtualId(ing),
+    name: itemName(ing),
     category: isStaple ? 'pantry' : ing.group === 'staple' ? 'pantry' : ing.group,
     unit: isStaple ? null : (ing.unit ?? null),
     quantity: isStaple ? null : 0,
@@ -41,7 +53,7 @@ function toRecipe(app: AppRecipe, items: Item[], virtual: Map<string, Item>): Re
   const ingredients = app.ingredients.map((ing) => {
     let item = findItem(ing, items)
     if (!item) {
-      item = virtual.get(VIRTUAL_PREFIX + ing.name.toLowerCase()) ?? virtualItem(ing)
+      item = virtual.get(virtualId(ing)) ?? virtualItem(ing)
       virtual.set(item.id, item)
     }
     return { item_id: item.id, quantity: ing.quantity, unit: ing.recipeUnit }

@@ -33,6 +33,18 @@ export function useItems() {
     return data as Item
   }, [])
 
+  // Saves several new items in one go (used by "Kom igång")
+  const addItems = useCallback(async (newItems: Omit<Item, 'id' | 'is_default'>[]) => {
+    if (newItems.length === 0) return []
+    const { data, error } = await supabase.from('items').insert(newItems).select(COLUMNS)
+    if (error) {
+      setError('Kunde inte spara varorna.')
+      return null
+    }
+    setItems((prev) => [...prev, ...(data as Item[])])
+    return data as Item[]
+  }, [])
+
   const updateItem = useCallback(async (id: string, changes: Partial<Item>) => {
     setItems((prev) => prev.map((item) => (item.id === id ? { ...item, ...changes } : item)))
     const { error } = await supabase.from('items').update(changes).eq('id', id)
@@ -60,7 +72,7 @@ export function useItems() {
     if (error) setError('Kunde inte ångra.')
   }, [])
 
-  return { items, loading, error, clearError: () => setError(''), addItem, updateItem, removeItem, restoreItem }
+  return { items, loading, error, clearError: () => setError(''), addItem, addItems, updateItem, removeItem, restoreItem }
 }
 
 export type ItemsStore = ReturnType<typeof useItems>

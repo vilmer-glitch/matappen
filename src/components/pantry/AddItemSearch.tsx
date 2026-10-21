@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react'
-import { Search } from 'lucide-react'
+import { Search, Sparkles } from 'lucide-react'
 import { CATEGORIES, UNITS, unitLabel, type Category, type Unit } from '../../lib/constants'
+import type { CatalogItem } from '../../data/catalog'
+import { catalogEntryFor, suggest } from '../../lib/search'
 import type { Item } from '../../types'
 
 export type NewItem = { name: string; group: Category | 'staple'; unit: Unit; quantity: number | null }
@@ -16,7 +18,9 @@ type Props = {
 
 const GROUPS = [...CATEGORIES, { value: 'staple', label: 'Basvara' }] as const
 
-// Search field that suggests existing items while typing, or creates a new one.
+const groupLabel: Record<NewItem['group'], string> = { fridge: 'Kyl', pantry: 'Skafferi', staple: 'Basvara' }
+
+// Search field that suggests your items and the app's catalog while typing, or creates a new item.
 export function AddItemSearch({
   items,
   onPick,
@@ -30,28 +34,54 @@ export function AddItemSearch({
   const [unit, setUnit] = useState<Unit>('g')
   const [quantity, setQuantity] = useState('')
 
+  // Known from the catalog: group and unit are already set
+  const [known, setKnown] = useState(false)
+
   const text = query.trim()
-  const matches = text
-    ? items.filter((item) => item.name.toLowerCase().includes(text.toLowerCase())).slice(0, 6)
-    : []
-  const exact = items.find((item) => item.name.toLowerCase() === text.toLowerCase())
+  const suggestions = suggest(text, items, 7)
+  const exact = suggestions.some((s) => s.score === 0)
 
   function pick(item: Item) {
     onPick(item)
     setQuery('')
   }
 
-  function startCreate() {
-    setNewName(text.charAt(0).toUpperCase() + text.slice(1))
+  // Opens the form for a new item, prefilled when the app knows it
+  function open(name: string, entry?: CatalogItem) {
+    setNewName(name)
     setQuantity('')
     setQuery('')
+    setKnown(Boolean(entry))
+    if (entry) {
+      setGroup(entry.group)
+      if (entry.unit) setUnit(entry.unit)
+    }
   }
 
+  function pickCatalog(entry: CatalogItem) {
+    // Without an amount to ask for (recipes, shopping list) the item is added at once
+    if (!withQuantity) {
+      onCreate({ name: entry.name, group: entry.group, unit: entry.unit ?? 'g', quantity: null })
+      setQuery('')
+      return
+    }
+    open(entry.name, entry)
+  }
+
+  function startCreate() {
+    const entry = catalogEntryFor(text)
+    if (entry) pickCatalog(entry)
+    else open(text.charAt(0).toUpperCase() + text.slice(1))
+  }
+
+  // Enter picks the best suggestion, or creates a new item if there is none
   function handleSearch(e: FormEvent) {
     e.preventDefault()
     if (!text) return
-    if (exact) pick(exact)
-    else startCreate()
+    const first = suggestions[0]
+    if (!first) startCreate()
+    else if (first.kind === 'own') pick(first.item)
+    else pickCatalog(first.entry)
   }
 
   function create(e: FormEvent) {
@@ -70,11 +100,24 @@ export function AddItemSearch({
   if (newName !== null) {
     return (
       <form onSubmit={create} className="mb-4 space-y-3 rounded-xl border border-line bg-surface-2 p-4">
-        <p className="text-sm text-muted">
-          Ny vara: <strong className="text-ink">{newName}</strong>
-        </p>
+        <div className="flex items-center justify-between gap-2 text-sm text-muted">
+          <span>
+            {known ? 'Lägg till' : 'Ny vara'}: <strong className="text-ink">{newName}</strong>
+            {known && (
+              <span className="ml-2 text-faint">
+                {groupLabel[group]}
+                {group !== 'staple' && ` · ${unitLabel(unit)}`}
+              </span>
+            )}
+          </span>
+          {known && (
+            <button type="button" onClick={() => setKnown(false)} className="text-xs font-semibold text-faint hover:text-ink">
+              Ändra
+            </button>
+          )}
+        </div>
 
-        <Choice options={GROUPS} value={group} onChange={setGroup} />
+        {!known && <Choice options={GROUPS} value={group} onChange={setGroup} />}
 
         {group !== 'staple' && (
           <div className="flex items-center gap-2">
@@ -89,7 +132,11 @@ export function AddItemSearch({
               />
             )}
             {!withQuantity && <span className="text-sm text-muted">Enhet i lagret:</span>}
-            <Choice options={UNITS} value={unit} onChange={setUnit} />
+            {known ? (
+              <span className="text-sm font-semibold text-muted">{unitLabel(unit)}</span>
+            ) : (
+              <Choice options={UNITS} value={unit} onChange={setUnit} />
+            )}
           </div>
         )}
 
@@ -121,32 +168,54 @@ export function AddItemSearch({
       />
       {text && (
         <ul className="absolute z-10 mt-2 w-full overflow-hidden rounded-xl border border-line bg-surface text-sm shadow-lg">
-          {matches.map((item) => (
-            <li key={item.id}>
-              <button
-                type="button"
-                onClick={() => pick(item)}
-                className="flex w-full justify-between px-4 py-2.5 text-left hover:bg-surface-2"
-              >
-                <span>{item.name}</span>
-                <span className="text-faint">
-                  {item.is_staple
-                    ? 'Basvara'
-                    : item.quantity === null
-                      ? ''
-                      : `${item.quantity.toLocaleString('sv-SE')} ${unitLabel(item.unit)}`}
-                </span>
-              </button>
-            </li>
-          ))}
+          {!exact && suggestions.length > 0 && (
+            <li className="px-4 pb-1 pt-2.5 text-xs font-semibold text-faint">Menade du …</li>
+          )}
+          {suggestions.map((s) =>
+            s.kind === 'own' ? (
+              <li key={s.item.id}>
+                <button
+                  type="button"
+                  onClick={() => pick(s.item)}
+                  className="flex w-full justify-between px-4 py-2.5 text-left hover:bg-surface-2"
+                >
+                  <span className="font-semibold">{s.item.name}</span>
+                  <span className="text-faint">
+                    {s.item.is_staple
+                      ? 'Basvara'
+                      : s.item.quantity === null
+                        ? 'hemma'
+                        : `${s.item.quantity.toLocaleString('sv-SE')} ${unitLabel(s.item.unit)}`}
+                  </span>
+                </button>
+              </li>
+            ) : (
+              <li key={s.entry.name}>
+                <button
+                  type="button"
+                  onClick={() => pickCatalog(s.entry)}
+                  className="flex w-full items-center justify-between px-4 py-2.5 text-left hover:bg-surface-2"
+                >
+                  <span className="flex items-center gap-2">
+                    <Sparkles size={13} className="text-accent" />
+                    {s.entry.name}
+                  </span>
+                  <span className="text-faint">
+                    {groupLabel[s.entry.group]}
+                    {s.entry.unit && ` · ${unitLabel(s.entry.unit)}`}
+                  </span>
+                </button>
+              </li>
+            ),
+          )}
           {!exact && (
-            <li>
+            <li className="border-t border-line">
               <button
                 type="button"
-                onClick={startCreate}
+                onClick={() => open(text.charAt(0).toUpperCase() + text.slice(1))}
                 className="w-full px-4 py-2.5 text-left font-semibold text-accent-strong hover:bg-surface-2"
               >
-                + Lägg till ”{text}”
+                + Lägg till ”{text}” som ny vara
               </button>
             </li>
           )}

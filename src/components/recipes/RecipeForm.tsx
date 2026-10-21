@@ -30,10 +30,11 @@ export function RecipeForm({ recipe, items, onCreateItem, onSave, onCancel }: Pr
   const [saving, setSaving] = useState(false)
 
   const itemsById = new Map(items.map((item) => [item.id, item]))
-  const available = items.filter((item) => !ingredients.some((ing) => ing.item_id === item.id))
 
   function addIngredient(item: Item) {
-    setIngredients((prev) => [...prev, { item_id: item.id, quantityText: '', unit: item.unit }])
+    setIngredients((prev) =>
+      prev.some((row) => row.item_id === item.id) ? prev : [...prev, { item_id: item.id, quantityText: '', unit: item.unit }],
+    )
   }
 
   async function createIngredient(newItem: NewItem) {
@@ -144,7 +145,7 @@ export function RecipeForm({ recipe, items, onCreateItem, onSave, onCancel }: Pr
           </ul>
         )}
         <AddItemSearch
-          items={available}
+          items={items}
           onPick={addIngredient}
           onCreate={createIngredient}
           withQuantity={false}

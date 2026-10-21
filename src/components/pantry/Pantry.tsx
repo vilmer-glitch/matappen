@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { ChevronDown, Refrigerator, Sparkles, Wheat, type LucideIcon } from 'lucide-react'
+import { ChevronDown, ListPlus, Refrigerator, Sparkles, Wheat, type LucideIcon } from 'lucide-react'
 import type { ItemsStore } from '../../hooks/useItems'
 import { statusFor, unitLabel } from '../../lib/constants'
 import type { Item } from '../../types'
 import { AddItemSearch, type NewItem } from './AddItemSearch'
+import { GetStarted } from './GetStarted'
 import { ItemRow } from './ItemRow'
 
 type Props = {
@@ -16,6 +17,7 @@ export function Pantry({ store, showUndo, openItem }: Props) {
   const { items, loading, error, clearError, addItem, updateItem, removeItem, restoreItem } = store
   const [showStaples, setShowStaples] = useState(false)
   const [focusId, setFocusId] = useState<string | null>(null)
+  const [showGetStarted, setShowGetStarted] = useState(false)
 
   function setQuantity(item: Item, quantity: number | null) {
     const before = item.quantity
@@ -75,6 +77,25 @@ export function Pantry({ store, showUndo, openItem }: Props) {
   return (
     <div>
       <AddItemSearch items={items} onPick={pick} onCreate={create} />
+
+      {/* A new pantry (only staples) starts with "Kom igång"; later it can be opened from the button */}
+      {fridge.length + pantry.length === 0 ? (
+        <div className="mb-5">
+          <GetStarted store={store} showUndo={showUndo} />
+        </div>
+      ) : showGetStarted ? (
+        <div className="mb-5">
+          <GetStarted store={store} showUndo={showUndo} onClose={() => setShowGetStarted(false)} />
+        </div>
+      ) : (
+        <button
+          onClick={() => setShowGetStarted(true)}
+          className="mb-4 flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-semibold text-accent-strong hover:bg-accent-soft"
+        >
+          <ListPlus size={16} />
+          Fyll på från listan
+        </button>
+      )}
 
       {error && (
         <p className="mb-3 flex justify-between rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">
