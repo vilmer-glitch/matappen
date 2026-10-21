@@ -2,7 +2,9 @@
 
 A web app that keeps track of the groceries at home, shows which dishes I can cook, and writes the shopping list for me.
 
-> Version 1 works locally: pantry, recipes, "What can I cook?", meal planning, shopping list and "I cooked this". Installable as an app.
+> Version 1: pantry, recipes, "What can I cook?", meal planning, shopping list and "I cooked this". Installable as an app.
+>
+> **Live:** https://matappen-gamma.vercel.app
 
 ## Features
 - **Pantry** – everything at home in three groups: Fridge, Pantry and Staples. Each item has a locked unit (g, ml, dl, l, pcs) and an amount; 0 means out of stock
@@ -14,7 +16,7 @@ A web app that keeps track of the groceries at home, shows which dishes I can co
 - **I cooked this** – pick how many servings you cooked and the ingredients are subtracted from the pantry (staples never are), with a report and undo
 
 ## Tech
-React, Vite, TypeScript, Tailwind CSS and Supabase (database + email/password login).
+React, Vite, TypeScript, Tailwind CSS and Supabase (database + email/password login). Hosted on Vercel; every push to `main` is deployed automatically.
 
 ## Running it locally
 1. Install [Node.js](https://nodejs.org) (version 20 or newer).
