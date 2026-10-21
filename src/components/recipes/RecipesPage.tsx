@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { BookOpen, ChevronLeft, Plus, Search } from 'lucide-react'
 import { useItems } from '../../hooks/useItems'
 import { useRecipes, type RecipeDraft } from '../../hooks/useRecipes'
 import { usePlannedMeals } from '../../hooks/usePlannedMeals'
@@ -86,28 +87,49 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
   }
 
   const errorText = error || items.error
+  // On a phone either the list or one recipe is shown; on a computer both side by side
+  const showingDetail = recipeId !== null || mode !== 'view'
+
+  function backToList() {
+    setMode('view')
+    onSelect(null)
+  }
 
   return (
-    <main className="grid grid-cols-1 gap-4 p-6 lg:grid-cols-[18rem_1fr]">
-      <aside className="rounded-xl bg-surface p-4 shadow lg:self-start">
-        <button
-          onClick={() => setMode('new')}
-          className="mb-3 w-full rounded-md bg-accent py-2 text-sm font-medium text-on-accent hover:bg-accent-strong"
-        >
-          + Ny rätt
-        </button>
-        <input
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Sök rätt…"
-          className="mb-3 w-full rounded-md border border-line px-3 py-2 text-sm focus:border-accent focus:outline-none"
-        />
-        <div className="mb-3 flex gap-1 text-xs">
+    <main className="mx-auto grid max-w-2xl grid-cols-1 gap-5 p-4 lg:max-w-[1300px] lg:grid-cols-[20rem_1fr] lg:p-6">
+      <aside
+        className={`rounded-2xl border border-line bg-surface p-4 shadow-sm lg:sticky lg:top-20 lg:block lg:self-start ${
+          showingDetail ? 'hidden' : ''
+        }`}
+      >
+        <div className="mb-4 flex items-center justify-between gap-2">
+          <h2 className="flex items-center gap-2 font-display text-xl font-semibold text-ink">
+            <BookOpen size={20} className="text-accent" />
+            Recept
+          </h2>
+          <button
+            onClick={() => setMode('new')}
+            className="flex items-center gap-1 rounded-full bg-accent px-3.5 py-2 text-sm font-semibold text-on-accent hover:bg-accent-strong"
+          >
+            <Plus size={16} />
+            Ny rätt
+          </button>
+        </div>
+        <div className="relative mb-3">
+          <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-faint" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Sök rätt…"
+            className="w-full rounded-full border border-line bg-surface-2 py-2.5 pl-10 pr-4 text-sm placeholder:text-faint focus:border-accent focus:bg-surface focus:outline-none"
+          />
+        </div>
+        <div className="mb-3 flex gap-1 text-xs font-semibold">
           {filters.map((f) => (
             <button
               key={f.value}
               onClick={() => setFilter(f.value)}
-              className={`rounded-full px-2.5 py-1 ${
+              className={`rounded-full px-3 py-1.5 ${
                 filter === f.value ? 'bg-ink text-bg' : 'bg-surface-2 text-muted hover:bg-line'
               }`}
             >
@@ -118,7 +140,7 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
         {loading ? (
           <p className="text-sm text-faint">Hämtar recept…</p>
         ) : shown.length === 0 ? (
-          <p className="text-sm text-faint">{recipes.length ? 'Ingen rätt matchar.' : 'Inga rätter än.'}</p>
+          <p className="px-1 py-2 text-sm text-faint">{recipes.length ? 'Ingen rätt matchar.' : 'Inga rätter än.'}</p>
         ) : (
           <ul className="space-y-0.5">
             {shown.map((recipe) => (
@@ -128,9 +150,9 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
                     onSelect(recipe.id)
                     setMode('view')
                   }}
-                  className={`flex w-full items-center justify-between gap-2 rounded-md px-3 py-2 text-left text-sm ${
+                  className={`flex min-h-11 w-full items-center justify-between gap-2 rounded-xl px-3 py-2 text-left font-semibold ${
                     mode !== 'new' && selected?.id === recipe.id
-                      ? 'bg-accent-soft font-medium text-accent-strong'
+                      ? 'lg:bg-accent-soft lg:text-accent-strong'
                       : 'text-ink hover:bg-surface-2'
                   }`}
                 >
@@ -143,9 +165,18 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
         )}
       </aside>
 
-      <section className="rounded-xl bg-surface p-6 shadow">
+      <section
+        className={`rounded-2xl border border-line bg-surface p-5 shadow-sm lg:block lg:p-8 ${showingDetail ? '' : 'hidden'}`}
+      >
+        <button
+          onClick={backToList}
+          className="-ml-1 mb-4 flex items-center gap-1 rounded-full px-2 py-1 text-sm font-semibold text-muted hover:bg-surface-2 lg:hidden"
+        >
+          <ChevronLeft size={18} />
+          Alla recept
+        </button>
         {errorText && (
-          <p className="mb-4 flex justify-between rounded-md bg-danger-soft px-3 py-2 text-sm text-danger">
+          <p className="mb-4 flex justify-between rounded-xl bg-danger-soft px-3 py-2 text-sm text-danger">
             {errorText}
             <button
               onClick={() => {
@@ -165,7 +196,7 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
             items={items.items}
             onCreateItem={createItem}
             onSave={save}
-            onCancel={() => setMode('view')}
+            onCancel={() => (mode === 'new' && !recipeId ? backToList() : setMode('view'))}
           />
         ) : selected ? (
           <RecipeView
@@ -180,9 +211,13 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
           />
         ) : (
           !loading && (
-            <div className="py-16 text-center text-faint">
-              <p className="mb-2">Du har inga rätter än.</p>
-              <button onClick={() => setMode('new')} className="text-accent-strong hover:underline">
+            <div className="flex flex-col items-center py-16 text-center">
+              <BookOpen size={32} className="mb-3 text-faint" />
+              <p className="mb-3 text-muted">Du har inga rätter än.</p>
+              <button
+                onClick={() => setMode('new')}
+                className="rounded-full bg-accent px-4 py-2 text-sm font-semibold text-on-accent hover:bg-accent-strong"
+              >
                 Lägg till din första rätt
               </button>
             </div>
@@ -204,14 +239,14 @@ function Badge({ status }: { status: Availability | undefined }) {
   if (!status) return null
   if (status.canCook) {
     return (
-      <span className="shrink-0 rounded-full bg-olive-soft px-2 text-xs font-semibold text-olive">
+      <span className="shrink-0 rounded-full bg-olive-soft px-2 py-0.5 text-xs font-semibold text-olive">
         {status.maxServings === null ? 'Kan lagas' : `${status.maxServings} port`}
       </span>
     )
   }
   return (
     <span
-      className={`shrink-0 rounded-full px-2 text-xs ${status.almost ? 'bg-warn-soft text-warn' : 'bg-surface-2 text-muted'}`}
+      className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold ${status.almost ? 'bg-warn-soft text-warn' : 'bg-surface-2 text-muted'}`}
     >
       Saknar {status.missing.length}
     </span>
