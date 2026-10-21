@@ -16,16 +16,17 @@ export function usePlannedMeals() {
       .select(COLUMNS)
       .order('created_at')
       .then(({ data, error }) => {
-        if (error) setError('Kunde inte hämta veckans rätter.')
+        if (error) setError('Kunde inte hämta rätterna i Att laga.')
         else setMeals(data as PlannedMeal[])
         setLoading(false)
       })
   }, [])
 
-  const addMeal = useCallback(async (recipeId: string, servings: number) => {
+  // cookedAt is set when a dish that wasn't planned is cooked, so it shows up in "Senast lagat"
+  const addMeal = useCallback(async (recipeId: string, servings: number, cookedAt: string | null = null) => {
     const { data, error } = await supabase
       .from('planned_meals')
-      .insert({ recipe_id: recipeId, servings })
+      .insert({ recipe_id: recipeId, servings, cooked_at: cookedAt })
       .select(COLUMNS)
       .single()
     if (error) {

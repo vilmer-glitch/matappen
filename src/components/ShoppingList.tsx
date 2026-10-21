@@ -34,7 +34,7 @@ export function ShoppingList({ recipes, store, planned, list, showUndo }: Props)
   const needs = shoppingNeeds(planned.meals, recipesById, itemsById)
   const rowsByItem = new Map(list.rows.map((r) => [r.item_id, r]))
 
-  // Automatic lines from Veckans rätter, plus items added by hand
+  // Automatic lines from Att laga, plus items added by hand
   const lines: Line[] = needs.map((need) => {
     const row = rowsByItem.get(need.item.id)
     return {
@@ -123,7 +123,7 @@ export function ShoppingList({ recipes, store, planned, list, showUndo }: Props)
         <div className="mb-4 flex flex-col items-center rounded-xl bg-surface-2 px-4 py-6 text-center">
           <ShoppingBasket size={28} className="mb-2 text-faint" />
           <p className="text-sm text-muted">Listan är tom.</p>
-          <p className="text-xs text-faint">Det som veckans rätter saknar hamnar här automatiskt.</p>
+          <p className="text-xs text-faint">Det som rätterna i Att laga saknar hamnar här automatiskt.</p>
         </div>
       )}
 

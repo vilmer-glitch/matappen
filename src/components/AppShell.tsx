@@ -1,5 +1,5 @@
 import type { Session } from '@supabase/supabase-js'
-import { BookOpen, CalendarDays, LayoutGrid, LogOut, Package, ShoppingBasket, Tags, type LucideIcon } from 'lucide-react'
+import { BookOpen, ChefHat, LayoutGrid, LogOut, Package, ShoppingBasket, Tags, type LucideIcon } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { OVERVIEW_PAGES, usePage, type Page } from '../hooks/usePage'
 import { useUndo } from '../hooks/useUndo'
@@ -20,7 +20,7 @@ const desktopTabs: Tab[] = [
 // Phone: each overview column gets its own tab
 const mobileTabs: Tab[] = [
   { page: 'pantry', label: 'Lager', icon: Package },
-  { page: 'week', label: 'Veckan', icon: CalendarDays },
+  { page: 'week', label: 'Laga', icon: ChefHat },
   { page: 'list', label: 'Lista', icon: ShoppingBasket },
   { page: 'recipes', label: 'Recept', icon: BookOpen },
   { page: 'items', label: 'Varor', icon: Tags },

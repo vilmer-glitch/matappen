@@ -88,7 +88,7 @@ export function RecipesPage({ showUndo, recipeId, onSelect }: Props) {
   }
 
   // Subtracts the ingredients for the cooked servings from the pantry, and marks the dish
-  // as cooked in Veckans rätter if it was planned. Shows a report of what happened.
+  // as cooked in Att laga if it was planned. Shows a report of what happened.
   function cooked(recipe: Recipe, servings: number) {
     const { updates, lines } = planCooking(recipe, servings, itemsById)
     for (const { item, left } of updates) items.updateItem(item.id, { quantity: left, status: statusFor(left) })

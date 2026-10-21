@@ -10,7 +10,7 @@ type Props = {
   items: Item[]
   loading: boolean
   openRecipe: (id: string) => void
-  // Recipes already in Veckans rätter, and how to add one
+  // Recipes already in Att laga, and how to add one
   plannedIds: Set<string>
   onPlan: (recipeId: string) => void
 }
@@ -94,11 +94,11 @@ export function describeMissing({ item, short }: Missing) {
   return short !== null && item?.unit ? `${name} (${formatAmount(short)} ${unitLabel(item.unit)})` : name
 }
 
-// One click adds the recipe to Veckans rätter
+// Opens the confirmation for adding the recipe to Att laga
 function PlanButton({ planned, onPlan }: { planned: boolean; onPlan: () => void }) {
   if (planned)
     return (
-      <span className="flex items-center gap-1 px-2 py-1.5 text-xs font-semibold text-olive" title="Finns i veckans rätter">
+      <span className="flex items-center gap-1 px-2 py-1.5 text-xs font-semibold text-olive" title="Finns i Att laga">
         <Check size={14} />
         Vald
       </span>
@@ -106,7 +106,7 @@ function PlanButton({ planned, onPlan }: { planned: boolean; onPlan: () => void 
   return (
     <button
       onClick={onPlan}
-      title="Lägg till i veckans rätter"
+      title="Lägg till i Att laga"
       className="rounded-full bg-accent-soft p-2 text-accent-strong hover:bg-accent hover:text-on-accent"
     >
       <Plus size={16} />

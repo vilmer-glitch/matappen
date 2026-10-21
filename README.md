@@ -15,7 +15,8 @@ A web app that keeps track of the groceries at home, shows which dishes I can co
 - **Built-in recipes** – a set of recipes everyone starts with, each based on a real recipe with a link to the source (ICA, Arla, Köket …), marked "Från appen". Editing or planning one saves your own copy
 - **Recipes** – a recipe page with ingredients linked to the pantry, scaled by servings, plus instructions, link and notes. Recipes can use related units (kg, dl, tbsp…) and the app converts them
 - **What can I cook?** – dishes I can make now and how many servings the pantry is enough for, or dishes with only 1–2 items missing
-- **Meal planning** – pick dishes with one click and change the servings; the shopping list is created automatically
+- **Att laga (meal planning)** – pick dishes and servings; a confirmation shows exactly what ends up on the shopping list
+- **Har lagat (cooked)** – "I've cooked …": pick a dish (planned or not) and servings, see what is subtracted from the pantry, confirm; recent meals are listed
 - **Shopping list** – what the planned dishes miss (once per item), your own items and out-of-stock suggestions. Change the amount to what you bought; "Done shopping" adds checked items to the pantry
 - **I cooked this** – pick how many servings you cooked and the ingredients are subtracted from the pantry (staples never are), with a report and undo
 
