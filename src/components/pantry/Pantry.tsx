@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronDown, ListPlus, Refrigerator, Sparkles, Wheat, type LucideIcon } from 'lucide-react'
+import { ChevronDown, CircleOff, ListPlus, Refrigerator, Sparkles, Wheat, type LucideIcon } from 'lucide-react'
 import type { ItemsStore } from '../../hooks/useItems'
 import { statusFor, unitLabel } from '../../lib/constants'
 import type { Item } from '../../types'
@@ -16,6 +16,7 @@ type Props = {
 export function Pantry({ store, showUndo, openItem }: Props) {
   const { items, loading, error, clearError, addItem, updateItem, removeItem, restoreItem } = store
   const [showStaples, setShowStaples] = useState(false)
+  const [showOut, setShowOut] = useState(false)
   const [focusId, setFocusId] = useState<string | null>(null)
   const [showGetStarted, setShowGetStarted] = useState(false)
 
@@ -32,8 +33,10 @@ export function Pantry({ store, showUndo, openItem }: Props) {
 
   // Picking an existing item from the search jumps to its amount field
   function pick(item: Item) {
-    if (item.is_staple) setShowStaples(true)
-    else setFocusId(item.id)
+    if (item.is_staple) return setShowStaples(true)
+    // Out-of-stock items live in their own folded group; open it so the amount field can get focus
+    if (item.quantity === 0) setShowOut(true)
+    setFocusId(item.id)
   }
 
   async function create({ name, group, unit, quantity }: NewItem) {
@@ -52,8 +55,11 @@ export function Pantry({ store, showUndo, openItem }: Props) {
   if (loading) return <p className="text-sm text-faint">Hämtar lagret…</p>
 
   const byName = (a: Item, b: Item) => a.name.localeCompare(b.name, 'sv')
-  const fridge = items.filter((item) => !item.is_staple && item.category === 'fridge').sort(byName)
-  const pantry = items.filter((item) => !item.is_staple && item.category === 'pantry').sort(byName)
+  // Kyl and Skafferi only show what you have; amount 0 goes to "Slut hemma"
+  const atHome = (item: Item) => !item.is_staple && item.quantity !== 0
+  const fridge = items.filter((item) => atHome(item) && item.category === 'fridge').sort(byName)
+  const pantry = items.filter((item) => atHome(item) && item.category === 'pantry').sort(byName)
+  const out = items.filter((item) => !item.is_staple && item.quantity === 0).sort(byName)
   const staples = items.filter((item) => item.is_staple).sort(byName)
 
   function rows(list: Item[]) {
@@ -110,6 +116,26 @@ export function Pantry({ store, showUndo, openItem }: Props) {
       <Group title="Skafferi" icon={Wheat} count={pantry.length}>
         {pantry.length ? rows(pantry) : <Empty text="Inget i skafferiet än." />}
       </Group>
+
+      {out.length > 0 && (
+        <section className="mb-3 rounded-xl bg-surface-2 px-3 py-2">
+          <button
+            onClick={() => setShowOut(!showOut)}
+            className="flex w-full items-center gap-2 py-1 text-sm font-semibold text-muted hover:text-ink"
+          >
+            <CircleOff size={16} className="text-danger" />
+            Slut hemma
+            <span className="text-faint">{out.length}</span>
+            <ChevronDown size={16} className={`ml-auto transition-transform ${showOut ? 'rotate-180' : ''}`} />
+          </button>
+          {showOut && (
+            <>
+              <p className="pb-1 text-xs text-faint">Skriv en mängd när du har köpt något, så flyttas varan upp.</p>
+              {rows(out)}
+            </>
+          )}
+        </section>
+      )}
 
       <section className="rounded-xl bg-surface-2 px-3 py-2">
         <button
