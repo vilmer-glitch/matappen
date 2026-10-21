@@ -250,4 +250,36 @@ export const APP_RECIPES: AppRecipe[] = [
       pepper(),
     ],
   },
+  {
+    key: 'salsicciapasta',
+    name: 'Salsicciapasta',
+    servings: 4,
+    time: '30 min',
+    source: { name: 'Arla', url: 'https://www.arla.se/recept/salsicciapasta/' },
+    instructions: `1. Skiva schalottenlöken, moroten och fänkålen. Hacka vitlöken fint och dela tomaterna på mitten.
+2. Smält smöret i en stor stekpanna och fräs grönsakerna, vitlöken och tomaterna i ca 5 minuter.
+3. Snitta upp skinnet på korven och lägg köttet i pannan. Stek 4–5 minuter och dela det i mindre bitar under tiden.
+4. Koka pastan enligt förpackningen.
+5. Rör ner tomatpuré, chiliflakes, vin och grädde. Låt sjuda ca 10 minuter.
+6. Smaka av med socker och salt och blanda ner den avrunna pastan.
+7. Toppa med riven parmesan.`,
+    note: 'Gott med hackad bladpersilja på toppen. Ta 1 tsk chiliflakes om du vill ha det starkare.',
+    ingredients: [
+      { name: 'Schalottenlök', group: 'pantry', unit: 'pcs', quantity: 1, recipeUnit: 'pcs' },
+      { name: 'Morötter', group: 'fridge', unit: 'g', quantity: 100, recipeUnit: 'g' },
+      { name: 'Fänkål', group: 'fridge', unit: 'pcs', quantity: 1, recipeUnit: 'pcs' },
+      garlic(2),
+      { name: 'Tomater', aliases: ['Cocktailtomater'], group: 'fridge', unit: 'g', quantity: 150, recipeUnit: 'g' },
+      butter(25, 'g'),
+      { name: 'Salsiccia', group: 'fridge', unit: 'g', quantity: 300, recipeUnit: 'g' },
+      { name: 'Pasta', aliases: ['Rigatoni'], group: 'pantry', unit: 'g', quantity: 360, recipeUnit: 'g' },
+      { name: 'Tomatpuré', group: 'pantry', unit: 'ml', quantity: 2, recipeUnit: 'tbsp' },
+      { name: 'Chiliflakes', group: 'staple', quantity: 0.5, recipeUnit: 'tsp' },
+      { name: 'Vitt vin', group: 'pantry', unit: 'ml', quantity: 0.5, recipeUnit: 'dl' },
+      { name: 'Syrad grädde', group: 'fridge', unit: 'dl', quantity: 3, recipeUnit: 'dl' },
+      { name: 'Strösocker', group: 'staple', quantity: 0.5, recipeUnit: 'tsp' },
+      { name: 'Salt', group: 'staple', quantity: 1, recipeUnit: 'tsp' },
+      { name: 'Parmesan', group: 'fridge', unit: 'g', quantity: 80, recipeUnit: 'g' },
+    ],
+  },
 ]
