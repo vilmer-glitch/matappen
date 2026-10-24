@@ -104,7 +104,7 @@ export function RecipeView({ recipe, itemsById, onEdit, onDelete, onCooked, repo
                     }`}
                   />
                   <span className="w-20 shrink-0 text-right font-semibold text-muted">
-                    {ing.quantity !== null && `${formatAmount(ing.quantity * scale)} ${recipeUnitLabel(ing.unit)}`}
+                    {ing.quantity !== null && `${formatAmount(ing.quantity * scale)} ${recipeUnitLabel(ing.unit, item?.name)}`}
                   </span>
                   <span className={`flex-1 ${lacking ? 'text-danger' : 'text-ink'}`}>
                     {item?.name ?? 'Okänd vara'}
@@ -113,7 +113,7 @@ export function RecipeView({ recipe, itemsById, onEdit, onDelete, onCooked, repo
                   {lacking && (
                     <span className="rounded-full bg-danger-soft px-2 py-0.5 text-xs font-semibold text-danger">
                       {lacking.short !== null && item?.unit
-                        ? `saknas ${formatAmount(lacking.short)} ${unitLabel(item.unit)}`
+                        ? `saknas ${formatAmount(lacking.short)} ${unitLabel(item.unit, item.name)}`
                         : 'saknas'}
                     </span>
                   )}

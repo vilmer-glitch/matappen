@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { RecipeDraft } from '../../hooks/useRecipes'
-import { recipeUnitsFor, type RecipeUnit } from '../../lib/recipeUnits'
+import { recipeUnitLabel, recipeUnitsFor, type RecipeUnit } from '../../lib/recipeUnits'
 import type { Item, Recipe } from '../../types'
 import { AddItemSearch, type NewItem } from '../pantry/AddItemSearch'
 
@@ -127,7 +127,7 @@ export function RecipeForm({ recipe, items, onCreateItem, onSave, onCancel }: Pr
                     {item?.is_staple && <option value="">–</option>}
                     {recipeUnitsFor(item?.unit ?? null).map((u) => (
                       <option key={u.value} value={u.value}>
-                        {u.label}
+                        {recipeUnitLabel(u.value, item?.name)}
                       </option>
                     ))}
                   </select>

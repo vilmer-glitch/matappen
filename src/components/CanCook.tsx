@@ -91,7 +91,7 @@ export function CanCook({ recipes, items, loading, openRecipe, plannedIds, onPla
 // "köttfärs (300 g)" or just "köttfärs" when the amount isn't known
 export function describeMissing({ item, short }: Missing) {
   const name = item?.name.toLowerCase() ?? 'okänd vara'
-  return short !== null && item?.unit ? `${name} (${formatAmount(short)} ${unitLabel(item.unit)})` : name
+  return short !== null && item?.unit ? `${name} (${formatAmount(short)} ${unitLabel(item.unit, item.name)})` : name
 }
 
 // Opens the confirmation for adding the recipe to Att laga

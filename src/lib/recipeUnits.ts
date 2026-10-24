@@ -1,4 +1,4 @@
-import type { Unit } from './constants'
+import { unitLabel, type Unit } from './constants'
 
 // Units a recipe can use. `base` is the pantry unit it converts to, `factor` how many base units one of these is.
 export const RECIPE_UNITS = [
@@ -34,7 +34,8 @@ export function convert(quantity: number, from: RecipeUnit, to: Unit | RecipeUni
   return (quantity * fromUnit.factor) / toUnit.factor
 }
 
-export function recipeUnitLabel(unit: RecipeUnit | null) {
+export function recipeUnitLabel(unit: RecipeUnit | null, name?: string) {
+  if (unit === 'pcs' && name) return unitLabel('pcs', name)
   return RECIPE_UNITS.find((u) => u.value === unit)?.label ?? ''
 }
 

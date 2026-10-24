@@ -29,7 +29,7 @@ export function Pantry({ store, showUndo, openItem }: Props) {
     const before = continues ? series.current!.before : item.quantity
     series.current = { id: item.id, before, at: now }
     updateItem(item.id, { quantity, status: statusFor(quantity) })
-    const text = quantity === 0 ? 'slut' : quantity === null ? 'okänd mängd' : `${quantity.toLocaleString('sv-SE')} ${unitLabel(item.unit)}`
+    const text = quantity === 0 ? 'slut' : quantity === null ? 'okänd mängd' : `${quantity.toLocaleString('sv-SE')} ${unitLabel(item.unit, item.name)}`
     showUndo(`${item.name}: ${text}`, () => updateItem(item.id, { quantity: before, status: statusFor(before) }))
   }
 

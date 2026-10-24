@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { PackagePlus, Refrigerator, Search, Wheat, X, type LucideIcon } from 'lucide-react'
-import { CATALOG, stepFor, type CatalogItem } from '../../data/catalog'
+import { CATALOG, hintFor, stepFor, type CatalogItem } from '../../data/catalog'
 import type { ItemsStore } from '../../hooks/useItems'
 import { statusFor } from '../../lib/constants'
 import { normalize } from '../../lib/search'
@@ -125,7 +125,10 @@ function Section({ title, icon: Icon, children }: { title: string; icon: LucideI
 function AmountRow({ entry, value, onChange }: { entry: CatalogItem; value: number | null; onChange: (v: number | null) => void }) {
   return (
     <li className="flex min-h-12 items-center gap-2 border-b border-line/70 py-1">
-      <span className={`flex-1 truncate ${value !== null ? 'font-semibold text-ink' : 'text-muted'}`}>{entry.name}</span>
+      <span className={`min-w-0 flex-1 truncate ${value !== null ? 'font-semibold text-ink' : 'text-muted'}`}>
+        {entry.name}
+        {hintFor(entry.name) && <span className="block truncate text-xs font-normal text-faint">{hintFor(entry.name)}</span>}
+      </span>
       <AmountStepper
         value={value}
         unit={entry.unit}

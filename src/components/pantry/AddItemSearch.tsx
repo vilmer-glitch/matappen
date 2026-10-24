@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Search, Sparkles } from 'lucide-react'
 import { CATEGORIES, UNITS, unitLabel, type Category, type Unit } from '../../lib/constants'
-import { stepFor, type CatalogItem } from '../../data/catalog'
+import { hintFor, stepFor, type CatalogItem } from '../../data/catalog'
 import { formatAmount } from '../../lib/recipeUnits'
 import { AmountStepper } from '../AmountStepper'
 import { catalogEntryFor, suggest } from '../../lib/search'
@@ -102,7 +102,7 @@ export function AddItemSearch({
             {known && (
               <span className="ml-2 text-faint">
                 {groupLabel[group]}
-                {group !== 'staple' && ` · ${unitLabel(unit)}`}
+                {group !== 'staple' && ` · ${unitLabel(unit, newName ?? undefined)}`}
               </span>
             )}
           </span>
@@ -112,6 +112,10 @@ export function AddItemSearch({
             </button>
           )}
         </div>
+
+        {newName && hintFor(catalogEntryFor(newName)?.name) && (
+          <p className="text-xs text-faint">{hintFor(catalogEntryFor(newName)?.name)}</p>
+        )}
 
         {!known && <Choice options={GROUPS} value={group} onChange={setGroup} />}
 
@@ -150,7 +154,7 @@ export function AddItemSearch({
 
         <div className="flex gap-2">
           <button type="submit" className="flex-1 rounded-full bg-accent py-2 text-sm font-semibold text-on-accent hover:bg-accent-strong">
-            Lägg till{group !== 'staple' && quantity !== null ? ` ${formatAmount(quantity)} ${unitLabel(unit)}` : ''}
+            Lägg till{group !== 'staple' && quantity !== null ? ` ${formatAmount(quantity)} ${unitLabel(unit, newName ?? undefined)}` : ''}
           </button>
           <button
             type="button"
@@ -193,7 +197,7 @@ export function AddItemSearch({
                       ? 'Basvara'
                       : s.item.quantity === null
                         ? 'hemma'
-                        : `${s.item.quantity.toLocaleString('sv-SE')} ${unitLabel(s.item.unit)}`}
+                        : `${s.item.quantity.toLocaleString('sv-SE')} ${unitLabel(s.item.unit, s.item.name)}`}
                   </span>
                 </button>
               </li>
@@ -210,7 +214,7 @@ export function AddItemSearch({
                   </span>
                   <span className="text-faint">
                     {groupLabel[s.entry.group]}
-                    {s.entry.unit && ` · ${unitLabel(s.entry.unit)}`}
+                    {s.entry.unit && ` · ${unitLabel(s.entry.unit, s.entry.name)}`}
                   </span>
                 </button>
               </li>

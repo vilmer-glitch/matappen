@@ -54,7 +54,7 @@ export function AmountStepper({ value, unit, step, onChange, label, focus, onFoc
         type="button"
         onClick={() => nudge(-1)}
         disabled={!value}
-        title={`${formatAmount(step)} ${unitLabel(unit)} mindre`}
+        title={`${formatAmount(step)} ${unitLabel(unit, label)} mindre`}
         aria-label={`Minska ${label}`}
         className="rounded-full p-1.5 hover:bg-line disabled:opacity-30 disabled:hover:bg-transparent"
       >
@@ -81,11 +81,11 @@ export function AmountStepper({ value, unit, step, onChange, label, focus, onFoc
         aria-label={`Mängd ${label}`}
         className="w-12 bg-transparent py-1 text-right font-semibold text-ink focus:outline-none"
       />
-      <span className="w-6 pl-1">{unitLabel(unit)}</span>
+      <span className="min-w-6 pl-1">{unitLabel(unit, label)}</span>
       <button
         type="button"
         onClick={() => nudge(1)}
-        title={`${formatAmount(step)} ${unitLabel(unit)} mer`}
+        title={`${formatAmount(step)} ${unitLabel(unit, label)} mer`}
         aria-label={`Öka ${label}`}
         className="rounded-full p-1.5 hover:bg-line"
       >

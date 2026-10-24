@@ -1,3 +1,5 @@
+import { pieceName } from '../data/catalog'
+import { catalogEntryFor } from './search'
 // Values are stored in English in the database; labels are shown in the UI.
 
 export const CATEGORIES = [
@@ -17,7 +19,12 @@ export type Category = (typeof CATEGORIES)[number]['value']
 export type Unit = (typeof UNITS)[number]['value']
 export type Status = 'in_stock' | 'low' | 'out'
 
-export function unitLabel(unit: Unit | null) {
+// The unit as shown. With the item's name, pieces can get a clearer word (Vitlök: "klyftor" instead of "st").
+export function unitLabel(unit: Unit | null, name?: string) {
+  if (unit === 'pcs' && name) {
+    const piece = pieceName(catalogEntryFor(name)?.name)
+    if (piece) return piece
+  }
   return UNITS.find((u) => u.value === unit)?.label ?? ''
 }
 

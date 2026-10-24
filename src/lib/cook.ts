@@ -33,11 +33,11 @@ export function planCooking(recipe: Recipe, servings: number, itemsById: Map<str
     }
     const used = convert(ing.quantity * scale, ing.unit, item.unit)
     if (used === null) {
-      lines.push({ name, text: `kan inte räkna om ${recipeUnitLabel(ing.unit)} till ${unitLabel(item.unit)}`, ok: false })
+      lines.push({ name, text: `kan inte räkna om ${recipeUnitLabel(ing.unit, name)} till ${unitLabel(item.unit, name)}`, ok: false })
       continue
     }
     const left = Math.max(0, Math.round((item.quantity - used) * 100) / 100)
-    const unit = unitLabel(item.unit)
+    const unit = unitLabel(item.unit, name)
     lines.push({ name, text: `${formatAmount(item.quantity)} ${unit} → ${formatAmount(left)} ${unit}`, ok: true })
     updates.push({ item, left })
   }

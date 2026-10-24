@@ -70,7 +70,7 @@ export function PlanSheet({ recipe, meals, recipesById, itemsById, onConfirm, on
                 <li key={item.id} className="flex justify-between px-4 py-2.5 text-sm">
                   <span className="font-semibold text-ink">{item.name}</span>
                   <span className="text-muted">
-                    {amount !== null && item.unit ? `${formatAmount(amount)} ${unitLabel(item.unit)}` : 'mängd okänd'}
+                    {amount !== null && item.unit ? `${formatAmount(amount)} ${unitLabel(item.unit, item.name)}` : 'mängd okänd'}
                   </span>
                 </li>
               ))}

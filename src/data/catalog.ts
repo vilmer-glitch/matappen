@@ -287,3 +287,21 @@ const STEP_OVERRIDES: Record<string, number> = {
 export function stepFor(catalogName: string | undefined, unit: Unit | null) {
   return (catalogName && STEP_OVERRIDES[catalogName]) || (unit ? DEFAULT_STEPS[unit] : 1)
 }
+
+// Items counted in pieces where "st" would be unclear. Shown instead of "st" everywhere.
+const PIECE_NAMES: Record<string, string> = {
+  Vitlök: 'klyftor',
+}
+
+// A short tip shown when adding the item
+const HINTS: Record<string, string> = {
+  Vitlök: '1 vitlökshuvud ≈ 10 klyftor',
+}
+
+export function pieceName(catalogName: string | undefined) {
+  return catalogName ? PIECE_NAMES[catalogName] : undefined
+}
+
+export function hintFor(catalogName: string | undefined) {
+  return catalogName ? HINTS[catalogName] : undefined
+}

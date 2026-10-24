@@ -87,7 +87,7 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
     if (item.is_staple) return 'alltid hemma'
     if (item.quantity === null) return '?'
     if (item.quantity === 0) return 'slut'
-    return `${formatAmount(item.quantity)} ${unitLabel(item.unit)}`
+    return `${formatAmount(item.quantity)} ${unitLabel(item.unit, item.name)}`
   }
 
   return (
@@ -137,7 +137,7 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
                         <span className="block truncate font-semibold text-ink">{item.name}</span>
                         <span className="block truncate text-xs text-muted">
                           {groupLabels[groupOf(item)]}
-                          {!item.is_staple && ` · ${unitLabel(item.unit)}`}
+                          {!item.is_staple && ` · ${unitLabel(item.unit, item.name)}`}
                           {used > 0 && ` · ${used} recept`}
                           {item.is_default && ' · från början'}
                         </span>
@@ -175,7 +175,7 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
                       >
                         <td className="py-2.5 pl-2 pr-3 font-semibold text-ink">{item.name}</td>
                         <td className="py-2.5 pr-3 text-muted">{groupLabels[groupOf(item)]}</td>
-                        <td className="py-2.5 pr-3 text-muted">{item.is_staple ? '–' : unitLabel(item.unit)}</td>
+                        <td className="py-2.5 pr-3 text-muted">{item.is_staple ? '–' : unitLabel(item.unit, item.name)}</td>
                         <td className="py-2.5 pr-3 text-muted">
                           {item.is_staple
                             ? 'alla'

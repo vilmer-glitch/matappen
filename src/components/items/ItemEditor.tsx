@@ -51,7 +51,7 @@ export function ItemEditor({ item, items, recipes, onSave, onDelete, onClose, op
               ? 'Ingen mängd ifylld'
               : item.quantity === 0
                 ? 'Slut'
-                : `${formatAmount(item.quantity)} ${unitLabel(item.unit)}`}
+                : `${formatAmount(item.quantity)} ${unitLabel(item.unit, item.name)}`}
         </dd>
         <dt className="text-muted">Enheter i recept</dt>
         <dd className="text-ink">
