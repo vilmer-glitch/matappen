@@ -20,7 +20,8 @@ export type AppRecipe = {
   key: string
   name: string
   servings: number
-  time: string
+  time?: string
+  // url is empty for my own recipes (source name "Eget recept")
   source: { name: string; url: string }
   instructions: string
   note?: string
@@ -280,6 +281,58 @@ export const APP_RECIPES: AppRecipe[] = [
       { name: 'Strösocker', group: 'staple', quantity: 0.5, recipeUnit: 'tsp' },
       { name: 'Salt', group: 'staple', quantity: 1, recipeUnit: 'tsp' },
       { name: 'Parmesan', group: 'fridge', unit: 'g', quantity: 80, recipeUnit: 'g' },
+    ],
+  },
+  {
+    key: 'asiatisk-kottfars-rod-curry',
+    name: 'Asiatisk köttfärs med röd curry',
+    servings: 3,
+    source: { name: 'Eget recept', url: '' },
+    instructions: `1. Koka riset.
+2. Stek färsen.
+3. Sänk värmen. Hacka vitlök och chili och stek dem med currypastan en kort stund.
+4. Salta och peppra.
+5. Häll i kokosmjölk, fisksås och ostronsås och låt bli varmt.
+6. Toppa med limejuice och servera med riset.`,
+    note: 'Mängderna currypasta, ostronsås och fisksås är ungefärliga. Smaka av.',
+    ingredients: [
+      { name: 'Köttfärs', aliases: ['Nötfärs'], group: 'fridge', unit: 'g', quantity: 600, recipeUnit: 'g' },
+      { name: 'Färsk chili', group: 'fridge', unit: 'pcs', quantity: 2, recipeUnit: 'pcs' },
+      garlic(2),
+      { name: 'Kokosmjölk', group: 'pantry', unit: 'ml', quantity: 400, recipeUnit: 'ml' },
+      { name: 'Ris', group: 'pantry', unit: 'g', quantity: 250, recipeUnit: 'g' },
+      { name: 'Röd currypasta', group: 'pantry', unit: 'g', quantity: 30, recipeUnit: 'g' },
+      { name: 'Ostronsås', group: 'pantry', unit: 'ml', quantity: 2, recipeUnit: 'tbsp' },
+      { name: 'Fisksås', group: 'pantry', unit: 'ml', quantity: 1, recipeUnit: 'tbsp' },
+      salt,
+      pepper(),
+      { name: 'MSG', group: 'staple', quantity: null, recipeUnit: null },
+      { name: 'Limejuice', group: 'staple', quantity: null, recipeUnit: null },
+    ],
+  },
+  {
+    key: 'spagetti-kottfarssas',
+    name: 'Spagetti och köttfärssås',
+    servings: 3,
+    source: { name: 'Eget recept', url: '' },
+    instructions: `1. Hacka löken och vitlöken och fräs dem på låg värme i smör.
+2. Höj värmen och stek färsen.
+3. Häll i chilisås och soja. Krydda med salt, peppar, chiliflakes och oregano.
+4. Rör ner grädden och låt puttra.
+5. Koka spagettin under tiden.`,
+    ingredients: [
+      { name: 'Köttfärs', aliases: ['Nötfärs'], group: 'fridge', unit: 'g', quantity: 600, recipeUnit: 'g' },
+      onion(1),
+      garlic(2),
+      { name: 'Chilisås', group: 'pantry', unit: 'ml', quantity: 2, recipeUnit: 'dl' },
+      soy(2),
+      cream(3),
+      { name: 'Spagetti', group: 'pantry', unit: 'g', quantity: 300, recipeUnit: 'g' },
+      { name: 'Smör', group: 'staple', quantity: null, recipeUnit: null },
+      salt,
+      pepper(),
+      { name: 'Oregano', group: 'staple', quantity: null, recipeUnit: null },
+      { name: 'Chiliflakes', group: 'staple', quantity: null, recipeUnit: null },
     ],
   },
 ]

@@ -180,6 +180,7 @@ const PANTRY: Row[] = [
   ['Senap', 'ml', '*', 'Skånsk senap'],
   ['Dijonsenap', 'ml', ''],
   ['Majonnäs', 'ml', '', 'Majonäs', 'Majo'],
+  ['Chilisås', 'ml', '', 'Chili sauce'],
   ['Sweet chilisås', 'ml', '', 'Sweet chili'],
   ['Sambal oelek', 'ml', '', 'Sambal'],
   ['Sriracha', 'ml', ''],
@@ -253,6 +254,8 @@ const STAPLES = spices([
   'Farinsocker',
   ['Majsstärkelse', 'Maizena'],
   'Potatismjöl',
+  ['MSG', 'Glutamat', 'Smakförstärkare', 'Umami'],
+  ['Limejuice', 'Limesaft', 'Limejuice på flaska'],
 ])
 
 export const CATALOG: CatalogItem[] = [...rows('fridge', FRIDGE), ...rows('pantry', PANTRY), ...STAPLES]
