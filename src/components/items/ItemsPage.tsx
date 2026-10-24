@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChevronLeft, ChevronRight, MousePointerClick, Search, Tags } from 'lucide-react'
+import { ChevronLeft, ChevronRight, MousePointerClick, Plus, Search, Tags } from 'lucide-react'
 import { useItems } from '../../hooks/useItems'
 import { useRecipes } from '../../hooks/useRecipes'
 import { CATEGORIES, unitLabel } from '../../lib/constants'
@@ -8,6 +8,8 @@ import { formatAmount, recipeUnitsFor } from '../../lib/recipeUnits'
 import { CATALOG } from '../../data/catalog'
 import { catalogEntryFor, normalize } from '../../lib/search'
 import { CatalogPanel, itemFromCatalog } from './CatalogPanel'
+import { NewItemPanel, type NewItemOrigin } from './NewItemPanel'
+import { useShoppingList } from '../../hooks/useShoppingList'
 import type { Item, Recipe } from '../../types'
 import { ItemEditor } from './ItemEditor'
 
@@ -16,6 +18,8 @@ type Props = {
   itemId: string | null
   onSelect: (id: string | null) => void
   openRecipe: (id: string) => void
+  // After a new item is made from Lager or the shopping list, go back there
+  goBack: (page: 'pantry' | 'list') => void
 }
 
 const groupFilters = [
@@ -41,7 +45,7 @@ const groupLabels: Record<string, string> = {
 }
 
 // All items in the system, with information about each one and a way to edit or remove it
-export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
+export function ItemsPage({ showUndo, itemId, onSelect, openRecipe, goBack }: Props) {
   const store = useItems()
   const { recipes, saveRecipe, error: recipeError } = useRecipes()
   const [search, setSearch] = useState('')
@@ -59,6 +63,9 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
   const isOwn = (item: Item) => !isCatalog(item) && !item.is_default && !catalogEntryFor(item.name)
 
   const selected = store.items.find((i) => i.id === itemId)
+  // "new:<where you came from>:<name>" opens the form for a new item of your own
+  const newItem = itemId?.startsWith('new:') ? parseNew(itemId) : undefined
+  const list = useShoppingList()
   const selectedEntry = itemId?.startsWith(CATALOG_PREFIX) ? CATALOG.find((c) => CATALOG_PREFIX + c.name === itemId) : undefined
   const q = normalize(search)
   const shown = [...store.items, ...fromCatalog]
@@ -78,6 +85,19 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
       return [item.name, ...(entry ? [entry.name, ...entry.aliases] : [])].some((n) => normalize(n).includes(q))
     })
     .sort((a, b) => a.name.localeCompare(b.name, 'sv'))
+
+  async function createOwn(fields: Omit<Item, 'id' | 'is_default'>, from: NewItemOrigin) {
+    const created = await store.addItem(fields)
+    if (!created) return
+    if (from === 'list') {
+      await list.saveRow(created.id, { is_manual: true, checked: false })
+      showUndo(`${created.name} skapades och lades på inköpslistan`, () => store.removeItem(created))
+      return goBack('list')
+    }
+    showUndo(`${created.name} skapades`, () => store.removeItem(created))
+    if (from === 'pantry') return goBack('pantry')
+    onSelect(created.id)
+  }
 
   async function addFromCatalog(entryName: string, quantity: number | null) {
     const entry = CATALOG.find((c) => c.name === entryName)
@@ -138,12 +158,19 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
     <main className="mx-auto grid max-w-2xl grid-cols-1 gap-5 p-4 md:max-w-4xl lg:max-w-[1400px] lg:grid-cols-[1fr_24rem] lg:p-6">
       {/* On a phone the list is hidden while an item is open */}
       <section
-        className={`rounded-2xl border border-line bg-surface p-4 shadow-sm lg:block lg:p-5 ${selected || selectedEntry ? 'hidden' : ''}`}
+        className={`rounded-2xl border border-line bg-surface p-4 shadow-sm lg:block lg:p-5 ${selected || selectedEntry || newItem ? 'hidden' : ''}`}
       >
         <h2 className="mb-4 flex items-center gap-2 font-display text-xl font-semibold text-ink">
           <Tags size={20} className="text-accent" />
           Varor
           <span className="font-sans text-base font-semibold text-faint">{store.items.length + fromCatalog.length}</span>
+          <button
+            onClick={() => onSelect('new:items:')}
+            className="ml-auto flex items-center gap-1 rounded-full border border-line px-3 py-1.5 font-sans text-sm font-semibold text-muted hover:bg-surface-2 hover:text-ink"
+          >
+            <Plus size={15} />
+            Ny egen vara
+          </button>
         </h2>
         <div className="relative mb-3">
           <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-faint" />
@@ -242,10 +269,20 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
 
       <aside
         className={`rounded-2xl border border-line bg-surface p-5 shadow-sm lg:sticky lg:top-20 lg:block lg:self-start ${
-          selected || selectedEntry ? '' : 'hidden'
+          selected || selectedEntry || newItem ? '' : 'hidden'
         }`}
       >
-        {selectedEntry ? (
+        {newItem ? (
+          <NewItemPanel
+            key={itemId}
+            initialName={newItem.name}
+            from={newItem.from}
+            items={store.items}
+            onCreate={(fields) => createOwn(fields, newItem.from)}
+            onOpenExisting={(id) => onSelect(id)}
+            onCancel={() => (newItem.from === 'pantry' || newItem.from === 'list' ? goBack(newItem.from) : onSelect(null))}
+          />
+        ) : selectedEntry ? (
           <>
             <button
               onClick={() => onSelect(null)}
@@ -316,4 +353,11 @@ function Chips<T extends string>({
       ))}
     </div>
   )
+}
+
+// "new:list:Chilimajo" → { from: 'list', name: 'Chilimajo' }
+function parseNew(id: string): { from: NewItemOrigin; name: string } {
+  const [, from, ...rest] = id.split(':')
+  const known: NewItemOrigin[] = ['pantry', 'list', 'recipe', 'items']
+  return { from: known.includes(from as NewItemOrigin) ? (from as NewItemOrigin) : 'items', name: rest.join(':') }
 }

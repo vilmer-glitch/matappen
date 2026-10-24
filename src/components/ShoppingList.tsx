@@ -16,6 +16,7 @@ type Props = {
   planned: PlannedMealsStore
   list: ShoppingListStore
   showUndo: (message: string, undo: () => void) => void
+  onRequestNew: (name: string) => void
 }
 
 type Line = {
@@ -26,7 +27,7 @@ type Line = {
   recipes: string[]
 }
 
-export function ShoppingList({ recipes, store, planned, list, showUndo }: Props) {
+export function ShoppingList({ recipes, store, planned, list, showUndo, onRequestNew }: Props) {
   const [showSuggestions, setShowSuggestions] = useState(false)
 
   const itemsById = new Map(store.items.map((item) => [item.id, item]))
@@ -117,6 +118,7 @@ export function ShoppingList({ recipes, store, planned, list, showUndo }: Props)
         onCreate={createManual}
         withQuantity={false}
         placeholder="Lägg till på listan…"
+        onRequestNew={onRequestNew}
       />
 
       {lines.length === 0 && (

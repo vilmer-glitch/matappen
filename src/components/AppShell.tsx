@@ -76,6 +76,7 @@ export function AppShell({ session }: { session: Session }) {
           showUndo={showUndo}
           openRecipe={(recipeId) => goTo('recipes', recipeId)}
           openItem={(itemId) => goTo('items', itemId)}
+          openNewItem={(name, from) => goTo('items', `new:${from}:${name}`)}
         />
       )}
       {page === 'recipes' && (
@@ -87,6 +88,7 @@ export function AppShell({ session }: { session: Session }) {
           itemId={id}
           onSelect={(itemId) => goTo('items', itemId)}
           openRecipe={(recipeId) => goTo('recipes', recipeId)}
+          goBack={(back) => goTo(back)}
         />
       )}
 

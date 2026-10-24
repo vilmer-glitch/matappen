@@ -12,15 +12,21 @@ export function useItems() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    supabase
-      .from('items')
-      .select(COLUMNS)
-      .order('name')
-      .then(({ data, error }) => {
-        if (error) setError('Kunde inte hämta lagret.')
-        else setItems(data as Item[])
-        setLoading(false)
-      })
+    const load = () =>
+      supabase
+        .from('items')
+        .select(COLUMNS)
+        .order('name')
+        .then(({ data, error }) => {
+          if (error) setError('Kunde inte hämta lagret.')
+          else setItems(data as Item[])
+          setLoading(false)
+        })
+    load()
+    // Coming back to the tab (e.g. after making a new item under Varor in another tab) loads the items again
+    const onVisible = () => document.visibilityState === 'visible' && load()
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
   }, [])
 
   const addItem = useCallback(async (newItem: Omit<Item, 'id' | 'is_default'>) => {

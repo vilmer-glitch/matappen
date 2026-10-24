@@ -22,9 +22,10 @@ type Props = {
   showUndo: (message: string, undo: () => void) => void
   openRecipe: (id: string) => void
   openItem: (id: string) => void
+  openNewItem: (name: string, from: 'pantry' | 'list') => void
 }
 
-export function Overview({ section, showUndo, openRecipe, openItem }: Props) {
+export function Overview({ section, showUndo, openRecipe, openItem, openNewItem }: Props) {
   // Shared by all three columns, so a change in one shows up in the others at once
   const store = useItems()
   const { recipes: personal, loading, saveRecipe } = useRecipes()
@@ -85,7 +86,7 @@ export function Overview({ section, showUndo, openRecipe, openItem }: Props) {
   return (
     <main className="mx-auto grid max-w-2xl grid-cols-1 gap-5 p-4 lg:max-w-[1500px] lg:grid-cols-3 lg:p-6">
       <Column title="Lager" icon={Package} visible={section === 'pantry'}>
-        <Pantry store={store} showUndo={showUndo} openItem={openItem} />
+        <Pantry store={store} showUndo={showUndo} openItem={openItem} onRequestNew={(name) => openNewItem(name, 'pantry')} />
       </Column>
       <div className={`space-y-5 ${section === 'week' ? '' : 'hidden lg:block'}`}>
         <Column title="Att laga" icon={CalendarDays} visible>
@@ -113,7 +114,14 @@ export function Overview({ section, showUndo, openRecipe, openItem }: Props) {
         </Column>
       </div>
       <Column title="Inköpslista" icon={ShoppingBasket} visible={section === 'list'}>
-        <ShoppingList recipes={personal} store={store} planned={planned} list={list} showUndo={showUndo} />
+        <ShoppingList
+          recipes={personal}
+          store={store}
+          planned={planned}
+          list={list}
+          showUndo={showUndo}
+          onRequestNew={(name) => openNewItem(name, 'list')}
+        />
       </Column>
 
       {planning && (

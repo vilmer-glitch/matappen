@@ -150,7 +150,11 @@ export function RecipeForm({ recipe, items, onCreateItem, onSave, onCancel }: Pr
           onCreate={createIngredient}
           withQuantity={false}
           placeholder="Lägg till ingrediens…"
+          onRequestNew={(name) => window.open(`${window.location.pathname}#varor/${encodeURIComponent(`new:recipe:${name}`)}`, '_blank')}
         />
+        <p className="mt-1 text-xs text-faint">
+          Ingredienser väljs bland varorna i appen. Saknas en vara skapar du den under Varor (öppnas i en ny flik).
+        </p>
       </Field>
 
       <Field label="Instruktioner">

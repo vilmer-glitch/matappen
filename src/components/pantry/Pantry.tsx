@@ -11,9 +11,10 @@ type Props = {
   store: ItemsStore
   showUndo: (message: string, undo: () => void) => void
   openItem: (id: string) => void
+  onRequestNew: (name: string) => void
 }
 
-export function Pantry({ store, showUndo, openItem }: Props) {
+export function Pantry({ store, showUndo, openItem, onRequestNew }: Props) {
   const { items, loading, error, clearError, addItem, updateItem, removeItem, restoreItem } = store
   const [showStaples, setShowStaples] = useState(false)
   const [showOut, setShowOut] = useState(false)
@@ -88,7 +89,7 @@ export function Pantry({ store, showUndo, openItem }: Props) {
 
   return (
     <div>
-      <AddItemSearch items={items} onPick={pick} onCreate={create} />
+      <AddItemSearch items={items} onPick={pick} onCreate={create} onRequestNew={onRequestNew} />
 
       {/* A new pantry (only staples) starts with "Kom igång"; later it can be opened from the button */}
       {fridge.length + pantry.length === 0 ? (

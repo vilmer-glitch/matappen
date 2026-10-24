@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Search, Sparkles } from 'lucide-react'
+import { ArrowRight, Search, Sparkles, TriangleAlert } from 'lucide-react'
 import { CATEGORIES, UNITS, unitLabel, type Category, type Unit } from '../../lib/constants'
 import { hintFor, stepFor, type CatalogItem } from '../../data/catalog'
 import { formatAmount } from '../../lib/recipeUnits'
@@ -13,9 +13,11 @@ type Props = {
   items: Item[]
   onPick: (item: Item) => void
   onCreate: (newItem: NewItem) => void
-  // Ask for the amount at home when creating a new item (off when picking recipe ingredients)
+  // Ask for the amount when adding one of the app's items (off when picking recipe ingredients)
   withQuantity?: boolean
   placeholder?: string
+  // New items can only be made under Varor: this takes the person there with the name filled in
+  onRequestNew: (name: string) => void
 }
 
 const GROUPS = [...CATEGORIES, { value: 'staple', label: 'Basvara' }] as const
@@ -29,6 +31,7 @@ export function AddItemSearch({
   onCreate,
   withQuantity = true,
   placeholder = 'Sök eller lägg till vara…',
+  onRequestNew,
 }: Props) {
   const [query, setQuery] = useState('')
   const [newName, setNewName] = useState<string | null>(null)
@@ -70,10 +73,12 @@ export function AddItemSearch({
     open(entry.name, entry)
   }
 
+  // Something the app doesn't know: send the person to Varor to make it there
   function startCreate() {
     const entry = catalogEntryFor(text)
-    if (entry) pickCatalog(entry)
-    else open(text.charAt(0).toUpperCase() + text.slice(1))
+    if (entry) return pickCatalog(entry)
+    onRequestNew(text.charAt(0).toUpperCase() + text.slice(1))
+    setQuery('')
   }
 
   // Enter picks the best suggestion, or creates a new item if there is none
@@ -221,13 +226,22 @@ export function AddItemSearch({
             ),
           )}
           {!exact && (
-            <li className="border-t border-line">
+            <li className="border-t border-line bg-warn-soft/50">
               <button
                 type="button"
-                onClick={() => open(text.charAt(0).toUpperCase() + text.slice(1))}
-                className="w-full px-4 py-2.5 text-left font-semibold text-accent-strong hover:bg-surface-2"
+                onClick={startCreate}
+                className="flex w-full items-start gap-2 px-4 py-2.5 text-left hover:bg-warn-soft"
               >
-                + Lägg till ”{text}” som ny vara
+                <TriangleAlert size={16} className="mt-0.5 shrink-0 text-warn" />
+                <span>
+                  <span className="block text-ink">
+                    {suggestions.length ? `Inget av förslagen? ”${text}” finns inte i appen.` : `”${text}” finns inte i appen.`}
+                  </span>
+                  <span className="flex items-center gap-1 font-semibold text-accent-strong">
+                    Skapa den som egen vara under Varor
+                    <ArrowRight size={14} />
+                  </span>
+                </span>
               </button>
             </li>
           )}
