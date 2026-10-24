@@ -5,6 +5,9 @@ import { useRecipes } from '../../hooks/useRecipes'
 import { CATEGORIES, unitLabel } from '../../lib/constants'
 import { groupOf, planItemEdit, recipesUsing, type ItemEdit } from '../../lib/itemChanges'
 import { formatAmount, recipeUnitsFor } from '../../lib/recipeUnits'
+import { CATALOG } from '../../data/catalog'
+import { catalogEntryFor, normalize } from '../../lib/search'
+import { CatalogPanel, itemFromCatalog } from './CatalogPanel'
 import type { Item, Recipe } from '../../types'
 import { ItemEditor } from './ItemEditor'
 
@@ -24,9 +27,13 @@ const groupFilters = [
 
 const originFilters = [
   { value: 'all', label: 'Alla' },
+  { value: 'home', label: 'I lagret' },
+  { value: 'catalog', label: 'Inte i lagret' },
   { value: 'own', label: 'Egna' },
-  { value: 'default', label: 'Från början' },
 ] as const
+
+// The app's catalog items you don't have get a stand-in row with this id prefix
+const CATALOG_PREFIX = 'catalog:'
 
 const groupLabels: Record<string, string> = {
   ...Object.fromEntries(CATEGORIES.map((c) => [c.value, c.label])),
@@ -41,12 +48,48 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
   const [groupFilter, setGroupFilter] = useState<(typeof groupFilters)[number]['value']>('all')
   const [originFilter, setOriginFilter] = useState<(typeof originFilters)[number]['value']>('all')
 
+  // Every item: yours, plus the app's catalog items you don't have yet (under any of their names)
+  const have = new Set(store.items.map((i) => normalize(i.name)))
+  const fromCatalog: Item[] = CATALOG.filter((c) => ![c.name, ...c.aliases].some((n) => have.has(normalize(n)))).map((c) => ({
+    id: CATALOG_PREFIX + c.name,
+    ...itemFromCatalog(c, null),
+    is_default: false,
+  }))
+  const isCatalog = (item: Item) => item.id.startsWith(CATALOG_PREFIX)
+  const isOwn = (item: Item) => !isCatalog(item) && !item.is_default && !catalogEntryFor(item.name)
+
   const selected = store.items.find((i) => i.id === itemId)
-  const shown = store.items
+  const selectedEntry = itemId?.startsWith(CATALOG_PREFIX) ? CATALOG.find((c) => CATALOG_PREFIX + c.name === itemId) : undefined
+  const q = normalize(search)
+  const shown = [...store.items, ...fromCatalog]
     .filter((item) => groupFilter === 'all' || groupOf(item) === groupFilter)
-    .filter((item) => originFilter === 'all' || (originFilter === 'default') === item.is_default)
-    .filter((item) => item.name.toLowerCase().includes(search.trim().toLowerCase()))
+    .filter((item) =>
+      originFilter === 'all'
+        ? true
+        : originFilter === 'home'
+          ? !isCatalog(item)
+          : originFilter === 'catalog'
+            ? isCatalog(item)
+            : isOwn(item),
+    )
+    .filter((item) => {
+      if (!q) return true
+      const entry = catalogEntryFor(item.name)
+      return [item.name, ...(entry ? [entry.name, ...entry.aliases] : [])].some((n) => normalize(n).includes(q))
+    })
     .sort((a, b) => a.name.localeCompare(b.name, 'sv'))
+
+  async function addFromCatalog(entryName: string, quantity: number | null) {
+    const entry = CATALOG.find((c) => c.name === entryName)
+    if (!entry) return
+    const created = await store.addItem(itemFromCatalog(entry, quantity))
+    if (!created) return
+    onSelect(created.id)
+    showUndo(`${created.name} lades i lagret`, () => {
+      store.removeItem(created)
+      onSelect(null)
+    })
+  }
 
   // Saves recipes again without their id field
   function saveRecipes(list: Recipe[]) {
@@ -84,6 +127,7 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
   const errorText = store.error || recipeError
 
   function homeText(item: Item) {
+    if (isCatalog(item)) return 'inte i lagret'
     if (item.is_staple) return 'alltid hemma'
     if (item.quantity === null) return '?'
     if (item.quantity === 0) return 'slut'
@@ -94,12 +138,12 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
     <main className="mx-auto grid max-w-2xl grid-cols-1 gap-5 p-4 md:max-w-4xl lg:max-w-[1400px] lg:grid-cols-[1fr_24rem] lg:p-6">
       {/* On a phone the list is hidden while an item is open */}
       <section
-        className={`rounded-2xl border border-line bg-surface p-4 shadow-sm lg:block lg:p-5 ${selected ? 'hidden' : ''}`}
+        className={`rounded-2xl border border-line bg-surface p-4 shadow-sm lg:block lg:p-5 ${selected || selectedEntry ? 'hidden' : ''}`}
       >
         <h2 className="mb-4 flex items-center gap-2 font-display text-xl font-semibold text-ink">
           <Tags size={20} className="text-accent" />
           Varor
-          <span className="font-sans text-base font-semibold text-faint">{store.items.length}</span>
+          <span className="font-sans text-base font-semibold text-faint">{store.items.length + fromCatalog.length}</span>
         </h2>
         <div className="relative mb-3">
           <Search size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-faint" />
@@ -126,7 +170,7 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
             {/* Phone: a simple list */}
             <ul className="divide-y divide-line md:hidden">
               {shown.map((item) => {
-                const used = recipesUsing(item.id, recipes).length
+                const used = isCatalog(item) ? 0 : recipesUsing(item.id, recipes).length
                 return (
                   <li key={item.id}>
                     <button
@@ -134,12 +178,12 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
                       className="flex min-h-14 w-full items-center gap-3 py-2 text-left"
                     >
                       <span className="min-w-0 flex-1">
-                        <span className="block truncate font-semibold text-ink">{item.name}</span>
+                        <span className={`block truncate font-semibold ${isCatalog(item) ? 'text-muted' : 'text-ink'}`}>{item.name}</span>
                         <span className="block truncate text-xs text-muted">
                           {groupLabels[groupOf(item)]}
                           {!item.is_staple && ` · ${unitLabel(item.unit, item.name)}`}
                           {used > 0 && ` · ${used} recept`}
-                          {item.is_default && ' · från början'}
+                          {isCatalog(item) ? ' · i appen' : isOwn(item) ? ' · egen' : ''}
                         </span>
                       </span>
                       <span className="text-sm font-semibold text-muted">{homeText(item)}</span>
@@ -166,14 +210,14 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
                 </thead>
                 <tbody className="divide-y divide-line">
                   {shown.map((item) => {
-                    const used = recipesUsing(item.id, recipes).length
+                    const used = isCatalog(item) ? 0 : recipesUsing(item.id, recipes).length
                     return (
                       <tr
                         key={item.id}
                         onClick={() => onSelect(item.id)}
                         className={`cursor-pointer ${item.id === itemId ? 'bg-accent-soft' : 'hover:bg-surface-2'}`}
                       >
-                        <td className="py-2.5 pl-2 pr-3 font-semibold text-ink">{item.name}</td>
+                        <td className={`py-2.5 pl-2 pr-3 font-semibold ${isCatalog(item) ? 'text-muted' : 'text-ink'}`}>{item.name}</td>
                         <td className="py-2.5 pr-3 text-muted">{groupLabels[groupOf(item)]}</td>
                         <td className="py-2.5 pr-3 text-muted">{item.is_staple ? '–' : unitLabel(item.unit, item.name)}</td>
                         <td className="py-2.5 pr-3 text-muted">
@@ -185,7 +229,7 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
                         </td>
                         <td className="py-2.5 pr-3 text-muted">{homeText(item)}</td>
                         <td className="py-2.5 pr-3 text-muted">{used ? `${used} recept` : '–'}</td>
-                        <td className="py-2.5 text-faint">{item.is_default ? 'Från början' : 'Egen'}</td>
+                        <td className="py-2.5 text-faint">{isCatalog(item) ? 'Inte i lagret' : isOwn(item) ? 'Egen' : 'Från appen'}</td>
                       </tr>
                     )
                   })}
@@ -198,10 +242,26 @@ export function ItemsPage({ showUndo, itemId, onSelect, openRecipe }: Props) {
 
       <aside
         className={`rounded-2xl border border-line bg-surface p-5 shadow-sm lg:sticky lg:top-20 lg:block lg:self-start ${
-          selected ? '' : 'hidden'
+          selected || selectedEntry ? '' : 'hidden'
         }`}
       >
-        {selected ? (
+        {selectedEntry ? (
+          <>
+            <button
+              onClick={() => onSelect(null)}
+              className="-ml-1 mb-3 flex items-center gap-1 rounded-full px-2 py-1 text-sm font-semibold text-muted hover:bg-surface-2 lg:hidden"
+            >
+              <ChevronLeft size={18} />
+              Alla varor
+            </button>
+            <CatalogPanel
+              key={selectedEntry.name}
+              entry={selectedEntry}
+              onAdd={(quantity) => addFromCatalog(selectedEntry.name, quantity)}
+              onClose={() => onSelect(null)}
+            />
+          </>
+        ) : selected ? (
           <>
             <button
               onClick={() => onSelect(null)}

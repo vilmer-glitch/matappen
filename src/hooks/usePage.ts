@@ -15,7 +15,7 @@ function fromHash(): Location {
   for (const [page, name] of Object.entries(hashNames)) {
     if (!name) continue
     const match = window.location.hash.match(new RegExp(`^#${name}(?:/(.+))?$`))
-    if (match) return { page: page as Page, id: match[1] ?? null }
+    if (match) return { page: page as Page, id: match[1] ? decodeURIComponent(match[1]) : null }
   }
   return { page: 'pantry', id: null }
 }
@@ -31,7 +31,7 @@ export function usePage() {
 
   function goTo(page: Page, id: string | null = null) {
     const name = hashNames[page]
-    window.location.hash = name ? `#${name}${id ? `/${id}` : ''}` : ''
+    window.location.hash = name ? `#${name}${id ? `/${encodeURIComponent(id)}` : ''}` : ''
     setLocation({ page, id })
     window.scrollTo({ top: 0 })
   }
