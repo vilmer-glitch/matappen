@@ -36,7 +36,8 @@ export function ShoppingList({ recipes, store, planned, list, showUndo, onReques
   const rowsByItem = new Map(list.rows.map((r) => [r.item_id, r]))
 
   // Automatic lines from Att laga, plus items added by hand
-  const lines: Line[] = needs.map((need) => {
+  // An automatic line whose amount is set to 0 has been removed by hand ("behövs inte"), so it's hidden
+  const lines: Line[] = needs.filter((need) => rowsByItem.get(need.item.id)?.quantity !== 0).map((need) => {
     const row = rowsByItem.get(need.item.id)
     return {
       item: need.item,
@@ -62,7 +63,8 @@ export function ShoppingList({ recipes, store, planned, list, showUndo, onReques
 
   function addManual(item: Item) {
     if (lines.some((l) => l.item.id === item.id)) return
-    list.saveRow(item.id, { is_manual: true, checked: false })
+    // quantity null also brings back an automatic line that was removed by hand
+    list.saveRow(item.id, { is_manual: true, checked: false, quantity: null })
     showUndo(`${item.name} lades på listan`, () => list.removeRows([item.id]))
   }
 
@@ -79,10 +81,18 @@ export function ShoppingList({ recipes, store, planned, list, showUndo, onReques
     if (created) addManual(created)
   }
 
-  function removeManual(line: Line) {
+  // Own items are removed from the list; automatic ones (from Att laga) are hidden by setting the amount to 0
+  function removeLine(line: Line) {
     const row = rowsByItem.get(line.item.id)
-    list.removeRows([line.item.id])
-    if (row) showUndo(`${line.item.name} togs bort från listan`, () => list.restoreRows([row]))
+    if (line.manual) {
+      list.removeRows([line.item.id])
+      if (row) showUndo(`${line.item.name} togs bort från listan`, () => list.restoreRows([row]))
+      return
+    }
+    list.saveRow(line.item.id, { quantity: 0, checked: false })
+    showUndo(`${line.item.name} togs bort från listan`, () =>
+      row ? list.saveRow(line.item.id, { quantity: row.quantity, checked: row.checked }) : list.removeRows([line.item.id]),
+    )
   }
 
   // Checked items go into the pantry with the amount on the list
@@ -136,7 +146,7 @@ export function ShoppingList({ recipes, store, planned, list, showUndo, onReques
             line={line}
             onToggle={() => list.saveRow(line.item.id, { checked: !line.checked })}
             onQuantity={(quantity) => list.saveRow(line.item.id, { quantity })}
-            onRemove={line.manual ? () => removeManual(line) : undefined}
+            onRemove={() => removeLine(line)}
           />
         ))}
       </ul>
@@ -187,7 +197,7 @@ type LineProps = {
   line: Line
   onToggle: () => void
   onQuantity: (quantity: number | null) => void
-  onRemove?: () => void
+  onRemove: () => void
 }
 
 function ShoppingLine({ line, onToggle, onQuantity, onRemove }: LineProps) {
@@ -217,15 +227,14 @@ function ShoppingLine({ line, onToggle, onQuantity, onRemove }: LineProps) {
           label={line.item.name}
         />
       )}
-      {onRemove && (
-        <button
-          onClick={onRemove}
-          title="Ta bort från listan"
-          className="rounded-full p-1.5 text-faint hover:bg-danger-soft hover:text-danger [@media(hover:hover)]:opacity-0 [@media(hover:hover)]:group-hover:opacity-100"
-        >
-          <X size={16} />
-        </button>
-      )}
+      <button
+        onClick={onRemove}
+        title={line.manual ? 'Ta bort från listan' : 'Behövs inte – ta bort från listan'}
+        aria-label={`Ta bort ${line.item.name} från listan`}
+        className="rounded-full p-1.5 text-faint hover:bg-danger-soft hover:text-danger"
+      >
+        <X size={16} />
+      </button>
     </li>
   )
 }
