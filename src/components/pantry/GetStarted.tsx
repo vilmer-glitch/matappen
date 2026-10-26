@@ -117,7 +117,7 @@ function Section({ title, icon: Icon, children }: { title: string; icon: LucideI
         <Icon size={16} className="text-accent" />
         {title}
       </h4>
-      <ul className="grid grid-cols-1 gap-x-4 sm:grid-cols-2">{children}</ul>
+      <ul>{children}</ul>
     </section>
   )
 }
